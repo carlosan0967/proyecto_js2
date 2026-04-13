@@ -188,3 +188,70 @@ function getProyectoNombre(id) {
       rhEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">No hay hitos pendientes.</p>`;
     }
   }
+
+  function renderProyectos() {
+    const tbody = document.getElementById('tbody-proyectos');
+    if (!DB.proyectos.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No hay proyectos. ¡Crea el primero!</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = DB.proyectos.map(p => {
+      const prog = proyectoProgress(p.id);
+      return `<tr>
+        <td><strong>${p.nombre}</strong></td>
+        <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.descripcion || '—'}</td>
+        <td>${p.fechaInicio || '—'}</td>
+        <td>${p.fechaFin || '—'}</td>
+        <td style="min-width:130px"><cb-progress value="${prog}"></cb-progress></td>
+        <td>
+          <div class="action-group">
+            <button class="btn-edit" onclick="editarProyecto('${p.id}')">Editar</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  
+  document.getElementById('btnNuevoProyecto').addEventListener('click', () => {
+    openModal('Nuevo Proyecto', formProyecto(), () => guardarProyecto(null));
+  });
+  
+  function formProyecto(p = {}) {
+    return `
+      <div class="form-group"><label>Nombre *</label>
+        <input id="f-nombre" value="${p.nombre || ''}" placeholder="Nombre del proyecto"/></div>
+      <div class="form-group"><label>Descripción</label>
+        <textarea id="f-desc">${p.descripcion || ''}</textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha Inicio *</label>
+          <input id="f-inicio" type="date" value="${p.fechaInicio || ''}"/></div>
+        <div class="form-group"><label>Fecha Fin *</label>
+          <input id="f-fin" type="date" value="${p.fechaFin || ''}"/></div>
+      </div>`;
+  }
+  
+  function guardarProyecto(id) {
+    const nombre = document.getElementById('f-nombre').value.trim();
+    const desc   = document.getElementById('f-desc').value.trim();
+    const inicio = document.getElementById('f-inicio').value;
+    const fin    = document.getElementById('f-fin').value;
+    if (!nombre || !inicio || !fin) { toast('Completa los campos obligatorios', 'error'); return; }
+    if (id) {
+      const p = DB.proyectos.find(x => x.id === id);
+      Object.assign(p, { nombre, descripcion: desc, fechaInicio: inicio, fechaFin: fin });
+      toast('Proyecto actualizado');
+    } else {
+      DB.proyectos.push({ id: uid(), nombre, descripcion: desc, fechaInicio: inicio, fechaFin: fin });
+      toast('Proyecto creado');
+    }
+    persist();
+    closeModal();
+    renderProyectos();
+    actualizarFiltros();
+  }
+  
+  function editarProyecto(id) {
+    const p = DB.proyectos.find(x => x.id === id);
+    openModal('Editar Proyecto', formProyecto(p), () => guardarProyecto(id));
+  }
+  
