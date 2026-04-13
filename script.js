@@ -34,3 +34,20 @@ class CbBadge extends HTMLElement {
   }
   customElements.define('cb-progress', CbProgress);
   
+  onst KEY = 'campusbuild_data';
+
+function loadData() {
+  try { return JSON.parse(localStorage.getItem(KEY)) || defaultData(); }
+  catch { return defaultData(); }
+}
+function saveData(d) {
+  localStorage.setItem(KEY, JSON.stringify(d));
+}
+function defaultData() {
+  return { proyectos: [], actividades: [], hitos: [], recursos: [] };
+}
+
+let DB = loadData();
+
+function persist() { saveData(DB); }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
