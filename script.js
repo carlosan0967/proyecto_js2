@@ -114,3 +114,47 @@ document.getElementById('modalOverlay').addEventListener('click', e => {
 document.getElementById('modalSave').addEventListener('click', () => {
   if (modalSaveCallback) modalSaveCallback();
 });
+
+function getProyectoNombre(id) {
+    const p = DB.proyectos.find(x => x.id === id);
+    return p ? p.nombre : '—';
+  }
+  function getActividadNombre(id) {
+    const a = DB.actividades.find(x => x.id === id);
+    return a ? a.nombre : '—';
+  }
+  function getRecursoNombre(id) {
+    const r = DB.recursos.find(x => x.id === id);
+    return r ? r.nombre : '—';
+  }
+  
+  function proyectosOptions(selected = '') {
+    return DB.proyectos.map(p =>
+      `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${p.nombre}</option>`
+    ).join('');
+  }
+  function recursosOptions(selected = '') {
+    return [{ id: '', nombre: '— Sin asignar —' }, ...DB.recursos].map(r =>
+      `<option value="${r.id}" ${r.id === selected ? 'selected' : ''}>${r.nombre}</option>`
+    ).join('');
+  }
+  
+  function proyectoProgress(pId) {
+    const acts = DB.actividades.filter(a => a.proyectoId === pId);
+    if (!acts.length) return 0;
+    const done = acts.filter(a => a.estado === 'Terminada').length;
+    return Math.round((done / acts.length) * 100);
+  }
+  
+  function actualizarHitosEstado() {
+    DB.hitos.forEach(h => {
+      if (!h.actividadesIds || !h.actividadesIds.length) return;
+      const todas = h.actividadesIds.every(aId => {
+        const a = DB.actividades.find(x => x.id === aId);
+        return a && a.estado === 'Terminada';
+      });
+      h.estado = todas ? 'Cumplido' : 'Pendiente-h';
+    });
+    persist();
+  }
+  
