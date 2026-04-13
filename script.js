@@ -349,3 +349,89 @@ function getProyectoNombre(id) {
     toast('Actividad eliminada', 'error');
   }
   
+  function renderHitos() {
+    const tbody = document.getElementById('tbody-hitos');
+    if (!DB.hitos.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No hay hitos registrados.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = DB.hitos.map(h => {
+      const acts = (h.actividadesIds || []).map(aId => getActividadNombre(aId)).join(', ') || '—';
+      return `<tr>
+        <td><strong>${h.nombre}</strong></td>
+        <td>${getProyectoNombre(h.proyectoId)}</td>
+        <td style="max-width:200px;font-size:.82rem;color:var(--text2)">${acts}</td>
+        <td><cb-badge estado="${h.estado}"></cb-badge></td>
+        <td>
+          <div class="action-group">
+            <button class="btn-edit" onclick="editarHito('${h.id}')">Editar</button>
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+  
+  document.getElementById('btnNuevoHito').addEventListener('click', () => {
+    openModal('Nuevo Hito', formHito(), () => guardarHito(null));
+  });
+  
+  function formHito(h = {}) {
+    const actsDelProyecto = h.proyectoId
+      ? DB.actividades.filter(a => a.proyectoId === h.proyectoId)
+      : [];
+    const actsChecks = actsDelProyecto.map(a =>
+      `<label><input type="checkbox" value="${a.id}" ${(h.actividadesIds||[]).includes(a.id)?'checked':''}> ${a.nombre}</label>`
+    ).join('');
+  
+    return `
+      <div class="form-group"><label>Nombre *</label>
+        <input id="f-nombre" value="${h.nombre || ''}" placeholder="Nombre del hito"/></div>
+      <div class="form-group"><label>Proyecto *</label>
+        <select id="f-proyecto" onchange="actualizarActsHito(this.value, ${JSON.stringify((h.actividadesIds||[]))})">
+          <option value="">Seleccionar...</option>${proyectosOptions(h.proyectoId)}</select></div>
+      <div class="form-group"><label>Actividades asociadas</label>
+        <div class="check-list" id="checklist-acts">
+          ${actsChecks || '<span style="color:var(--text2);font-size:.82rem">Selecciona un proyecto primero</span>'}
+        </div>
+      </div>`;
+  }
+  
+  window.actualizarActsHito = function(proyId, selIds = []) {
+    const acts = DB.actividades.filter(a => a.proyectoId === proyId);
+    const el = document.getElementById('checklist-acts');
+    if (!el) return;
+    if (!acts.length) {
+      el.innerHTML = '<span style="color:var(--text2);font-size:.82rem">No hay actividades en este proyecto</span>';
+      return;
+    }
+    el.innerHTML = acts.map(a =>
+      `<label><input type="checkbox" value="${a.id}" ${selIds.includes(a.id)?'checked':''}> ${a.nombre}</label>`
+    ).join('');
+  };
+  
+  function guardarHito(id) {
+    const nombre     = document.getElementById('f-nombre').value.trim();
+    const proyectoId = document.getElementById('f-proyecto').value;
+    if (!nombre || !proyectoId) { toast('Nombre y proyecto son obligatorios', 'error'); return; }
+    const checks = document.querySelectorAll('#checklist-acts input[type="checkbox"]:checked');
+    const actividadesIds = Array.from(checks).map(c => c.value);
+  
+    if (id) {
+      const h = DB.hitos.find(x => x.id === id);
+      Object.assign(h, { nombre, proyectoId, actividadesIds });
+      toast('Hito actualizado');
+    } else {
+      DB.hitos.push({ id: uid(), nombre, proyectoId, actividadesIds, estado: 'Pendiente-h' });
+      toast('Hito creado');
+    }
+    actualizarHitosEstado();
+    persist();
+    closeModal();
+    renderHitos();
+  }
+  
+  function editarHito(id) {
+    const h = DB.hitos.find(x => x.id === id);
+    openModal('Editar Hito', formHito(h), () => guardarHito(id));
+  }
+  
