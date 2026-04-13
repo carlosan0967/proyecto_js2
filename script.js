@@ -60,3 +60,36 @@ function toast(msg, type = 'success') {
     el._t = setTimeout(() => el.className = 'toast', 2800);
   }
   
+  const titles = {
+    dashboard: 'Dashboard', proyectos: 'Proyectos',
+    actividades: 'Actividades', hitos: 'Hitos',
+    recursos: 'Recursos Humanos', calendario: 'Calendario'
+  };
+  
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const v = btn.dataset.view;
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.view').forEach(s => s.classList.remove('active'));
+      document.getElementById('view-' + v).classList.add('active');
+      document.getElementById('pageTitle').textContent = titles[v];
+      if (v === 'dashboard') renderDashboard();
+      if (v === 'proyectos') renderProyectos();
+      if (v === 'actividades') renderActividades();
+      if (v === 'hitos') renderHitos();
+      if (v === 'recursos') renderRecursos();
+      if (v === 'calendario') renderCalendario();
+      // close sidebar on mobile
+      if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+    });
+  });
+  
+  document.getElementById('menuToggle').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+  });
+  
+  // Date badge
+  document.getElementById('dateBadge').textContent =
+    new Date().toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  
