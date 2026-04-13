@@ -539,3 +539,77 @@ function getProyectoNombre(id) {
     renderRecursos();
     toast('Recurso eliminado', 'error');
   }
+ 
+  let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+
+function renderCalendario() {
+  const filtroId = document.getElementById('filtro-proyecto-cal').value;
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                 'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('calMonthLabel').textContent = `${meses[calMonth]} ${calYear}`;
+
+  const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Dom
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const today = new Date();
+
+  let acts = DB.actividades.filter(a => a.fechaInicio);
+  if (filtroId) acts = acts.filter(a => a.proyectoId === filtroId);
+
+  // Build calendar grid
+  let html = `<div class="cal-header">
+    <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span>
+    <span>Jue</span><span>Vie</span><span>Sáb</span>
+  </div><div class="cal-grid">`;
+
+  // Prev month days
+  const prevDays = new Date(calYear, calMonth, 0).getDate();
+  for (let i = firstDay - 1; i >= 0; i--) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${prevDays - i}</div></div>`;
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+
+    const dayActs = acts.filter(a => {
+      if (!a.fechaInicio) return false;
+      const start = new Date(a.fechaInicio);
+      const end   = a.duracion ? new Date(start.getTime() + a.duracion * 86400000) : start;
+      const cur   = new Date(dateStr);
+      return cur >= start && cur <= end;
+    });
+
+    const eventsHtml = dayActs.slice(0, 3).map(a => {
+      const cls = a.estado === 'Terminada' ? 'terminada' : a.estado === 'En Proceso' ? 'en-proceso' : 'pendiente';
+      return `<div class="cal-event ${cls}" title="${a.nombre}">${a.nombre}</div>`;
+    }).join('');
+    const more = dayActs.length > 3 ? `<div style="font-size:.68rem;color:var(--text2)">+${dayActs.length-3} más</div>` : '';
+
+    html += `<div class="cal-day${isToday?' today':''}">
+      <div class="cal-day-num">${d}</div>
+      ${eventsHtml}${more}
+    </div>`;
+  }
+
+  // Fill remaining
+  const total = firstDay + daysInMonth;
+  const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let i = 1; i <= rem; i++) {
+    html += `<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
+  }
+  html += '</div>';
+  document.getElementById('calendario-grid').innerHTML = html;
+}
+
+document.getElementById('calPrev').addEventListener('click', () => {
+  calMonth--;
+  if (calMonth < 0) { calMonth = 11; calYear--; }
+  renderCalendario();
+});
+document.getElementById('calNext').addEventListener('click', () => {
+  calMonth++;
+  if (calMonth > 11) { calMonth = 0; calYear++; }
+  renderCalendario();
+});
+document.getElementById('filtro-proyecto-cal').addEventListener('change', renderCalendario);
