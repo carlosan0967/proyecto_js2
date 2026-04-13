@@ -613,3 +613,26 @@ document.getElementById('calNext').addEventListener('click', () => {
   renderCalendario();
 });
 document.getElementById('filtro-proyecto-cal').addEventListener('change', renderCalendario);
+
+function actualizarFiltros() {
+    ['filtro-proyecto-act', 'filtro-proyecto-cal'].forEach(id => {
+      const sel = document.getElementById(id);
+      const cur = sel.value;
+      sel.innerHTML = `<option value="">Todos los proyectos</option>` +
+        DB.proyectos.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${p.nombre}</option>`).join('');
+    });
+  }
+  
+  /* ─── EXPOSE GLOBALS FOR INLINE HANDLERS ─────────────────── */
+  window.editarProyecto   = editarProyecto;
+  window.editarActividad  = editarActividad;
+  window.eliminarActividad= eliminarActividad;
+  window.editarHito       = editarHito;
+  window.editarRecurso    = editarRecurso;
+  window.eliminarRecurso  = eliminarRecurso;
+  
+  /* ─── INIT ────────────────────────────────────────────────── */
+  actualizarFiltros();
+  actualizarHitosEstado();
+  renderDashboard();
+  
