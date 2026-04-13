@@ -255,3 +255,97 @@ function getProyectoNombre(id) {
     openModal('Editar Proyecto', formProyecto(p), () => guardarProyecto(id));
   }
   
+  function renderActividades(filtroId = document.getElementById('filtro-proyecto-act').value) {
+    const tbody = document.getElementById('tbody-actividades');
+    let acts = DB.actividades;
+    if (filtroId) acts = acts.filter(a => a.proyectoId === filtroId);
+    if (!acts.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No hay actividades registradas.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = acts.map(a => `<tr>
+      <td><strong>${a.nombre}</strong></td>
+      <td>${getProyectoNombre(a.proyectoId)}</td>
+      <td>${getRecursoNombre(a.responsableId)}</td>
+      <td>${a.fechaInicio || '—'}</td>
+      <td>${a.duracion ? a.duracion + ' días' : '—'}</td>
+      <td><cb-badge estado="${a.estado}"></cb-badge></td>
+      <td>
+        <div class="action-group">
+          <button class="btn-edit" onclick="editarActividad('${a.id}')">Editar</button>
+          <button class="btn-danger" onclick="eliminarActividad('${a.id}')">Eliminar</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  }
+  
+  document.getElementById('filtro-proyecto-act').addEventListener('change', function() {
+    renderActividades(this.value);
+  });
+  
+  document.getElementById('btnNuevaActividad').addEventListener('click', () => {
+    openModal('Nueva Actividad', formActividad(), () => guardarActividad(null));
+  });
+  
+  function formActividad(a = {}) {
+    return `
+      <div class="form-group"><label>Nombre *</label>
+        <input id="f-nombre" value="${a.nombre || ''}" placeholder="Nombre de la actividad"/></div>
+      <div class="form-group"><label>Proyecto *</label>
+        <select id="f-proyecto"><option value="">Seleccionar...</option>${proyectosOptions(a.proyectoId)}</select></div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha Inicio</label>
+          <input id="f-inicio" type="date" value="${a.fechaInicio || ''}"/></div>
+        <div class="form-group"><label>Duración estimada (días)</label>
+          <input id="f-duracion" type="number" min="1" value="${a.duracion || ''}"/></div>
+      </div>
+      <div class="form-group"><label>Responsable</label>
+        <select id="f-responsable">${recursosOptions(a.responsableId)}</select></div>
+      <div class="form-group"><label>Estado</label>
+        <select id="f-estado">
+          <option value="Pendiente" ${a.estado==='Pendiente'?'selected':''}>Pendiente</option>
+          <option value="En Proceso" ${a.estado==='En Proceso'?'selected':''}>En Proceso</option>
+          <option value="Terminada" ${a.estado==='Terminada'?'selected':''}>Terminada</option>
+        </select></div>`;
+  }
+  
+  function guardarActividad(id) {
+    const nombre     = document.getElementById('f-nombre').value.trim();
+    const proyectoId = document.getElementById('f-proyecto').value;
+    const fechaInicio= document.getElementById('f-inicio').value;
+    const duracion   = document.getElementById('f-duracion').value;
+    const responsableId = document.getElementById('f-responsable').value;
+    const estado     = document.getElementById('f-estado').value;
+    if (!nombre || !proyectoId) { toast('Nombre y proyecto son obligatorios', 'error'); return; }
+    if (id) {
+      const a = DB.actividades.find(x => x.id === id);
+      Object.assign(a, { nombre, proyectoId, fechaInicio, duracion: parseInt(duracion)||null, responsableId, estado });
+      toast('Actividad actualizada');
+    } else {
+      DB.actividades.push({ id: uid(), nombre, proyectoId, fechaInicio, duracion: parseInt(duracion)||null, responsableId, estado });
+      toast('Actividad creada');
+    }
+    actualizarHitosEstado();
+    persist();
+    closeModal();
+    renderActividades();
+  }
+  
+  function editarActividad(id) {
+    const a = DB.actividades.find(x => x.id === id);
+    openModal('Editar Actividad', formActividad(a), () => guardarActividad(id));
+  }
+  
+  function eliminarActividad(id) {
+    if (!confirm('¿Eliminar esta actividad?')) return;
+    DB.actividades = DB.actividades.filter(x => x.id !== id);
+    // limpiar de hitos
+    DB.hitos.forEach(h => {
+      h.actividadesIds = (h.actividadesIds || []).filter(aId => aId !== id);
+    });
+    actualizarHitosEstado();
+    persist();
+    renderActividades();
+    toast('Actividad eliminada', 'error');
+  }
+  
