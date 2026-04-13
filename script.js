@@ -34,7 +34,7 @@ class CbBadge extends HTMLElement {
   }
   customElements.define('cb-progress', CbProgress);
   
-  onst KEY = 'campusbuild_data';
+  const KEY = 'campusbuild_data';
 
 function loadData() {
   try { return JSON.parse(localStorage.getItem(KEY)) || defaultData(); }
@@ -51,3 +51,12 @@ let DB = loadData();
 
 function persist() { saveData(DB); }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+
+function toast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.className = `toast show ${type}`;
+    clearTimeout(el._t);
+    el._t = setTimeout(() => el.className = 'toast', 2800);
+  }
+  
