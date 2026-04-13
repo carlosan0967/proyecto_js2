@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CampusBuild – Gestión de Proyectos</title>
+  <link rel="stylesheet" href="styles.css"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+</head>
+<body>
+
+<!-- ===== SIDEBAR NAV ===== -->
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">🏗</span>
+    <span class="logo-text">CampusBuild</span>
+  </div>
+  <ul class="nav-links">
+    <li><button class="nav-btn active" data-view="dashboard">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button></li>
+    <li><button class="nav-btn" data-view="proyectos">
+      <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Proyectos
+    </button></li>
+    <li><button class="nav-btn" data-view="actividades">
+      <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Actividades
+    </button></li>
+    <li><button class="nav-btn" data-view="hitos">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Hitos
+    </button></li>
+    <li><button class="nav-btn" data-view="recursos">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Recursos
+    </button></li>
+    <li><button class="nav-btn" data-view="calendario">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Calendario
+    </button></li>
+  </ul>
+</nav>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main-content">
+  <header class="topbar">
+    <button class="menu-toggle" id="menuToggle">☰</button>
+    <h1 class="page-title" id="pageTitle">Dashboard</h1>
+    <div class="topbar-right">
+      <span class="date-badge" id="dateBadge"></span>
+    </div>
+  </header>
+
+  <!-- DASHBOARD -->
+  <section class="view active" id="view-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card" id="stat-proyectos">
+        <div class="stat-icon">📋</div>
+        <div class="stat-info"><span class="stat-num" id="cnt-proyectos">0</span><span class="stat-label">Proyectos</span></div>
+      </div>
+      <div class="stat-card" id="stat-actividades">
+        <div class="stat-icon">📌</div>
+        <div class="stat-info"><span class="stat-num" id="cnt-actividades">0</span><span class="stat-label">Actividades</span></div>
+      </div>
+      <div class="stat-card" id="stat-hitos">
+        <div class="stat-icon">⭐</div>
+        <div class="stat-info"><span class="stat-num" id="cnt-hitos">0</span><span class="stat-label">Hitos</span></div>
+      </div>
+      <div class="stat-card" id="stat-recursos">
+        <div class="stat-icon">👷</div>
+        <div class="stat-info"><span class="stat-num" id="cnt-recursos">0</span><span class="stat-label">Recursos</span></div>
+      </div>
+    </div>
+    <div class="dashboard-bottom">
+      <div class="recent-card">
+        <h3>Actividades recientes</h3>
+        <div id="recent-actividades" class="recent-list"></div>
+      </div>
+      <div class="recent-card">
+        <h3>Hitos próximos</h3>
+        <div id="recent-hitos" class="recent-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROYECTOS -->
+  <section class="view" id="view-proyectos">
+    <div class="view-header">
+      <h2>Proyectos</h2>
+      <button class="btn-primary" id="btnNuevoProyecto">+ Nuevo Proyecto</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="tabla-proyectos">
+        <thead><tr><th>Nombre</th><th>Descripción</th><th>Inicio</th><th>Fin</th><th>Progreso</th><th>Acciones</th></tr></thead>
+        <tbody id="tbody-proyectos"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ACTIVIDADES -->
+  <section class="view" id="view-actividades">
+    <div class="view-header">
+      <h2>Actividades</h2>
+      <div class="header-controls">
+        <select id="filtro-proyecto-act" class="select-control">
+          <option value="">Todos los proyectos</option>
+        </select>
+        <button class="btn-primary" id="btnNuevaActividad">+ Nueva Actividad</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="tabla-actividades">
+        <thead><tr><th>Actividad</th><th>Proyecto</th><th>Responsable</th><th>Inicio</th><th>Duración</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="tbody-actividades"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- HITOS -->
+  <section class="view" id="view-hitos">
+    <div class="view-header">
+      <h2>Hitos</h2>
+      <button class="btn-primary" id="btnNuevoHito">+ Nuevo Hito</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="tabla-hitos">
+        <thead><tr><th>Hito</th><th>Proyecto</th><th>Actividades</th><th>Estado</th><th>Acciones</th></tr></thead>
+        <tbody id="tbody-hitos"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- RECURSOS -->
+  <section class="view" id="view-recursos">
+    <div class="view-header">
+      <h2>Recursos Humanos</h2>
+      <button class="btn-primary" id="btnNuevoRecurso">+ Nuevo Recurso</button>
+    </div>
+    <div class="table-wrapper">
+      <table class="data-table" id="tabla-recursos">
+        <thead><tr><th>ID</th><th>Nombre</th><th>Rol</th><th>ARL</th><th>Salario</th><th>Sangre</th><th>Acciones</th></tr></thead>
+        <tbody id="tbody-recursos"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- CALENDARIO -->
+  <section class="view" id="view-calendario">
+    <div class="view-header">
+      <h2>Calendario de Actividades</h2>
+      <div class="header-controls">
+        <select id="filtro-proyecto-cal" class="select-control">
+          <option value="">Todos los proyectos</option>
+        </select>
+        <div class="cal-nav">
+          <button class="btn-icon" id="calPrev">&#8592;</button>
+          <span id="calMonthLabel"></span>
+          <button class="btn-icon" id="calNext">&#8594;</button>
+        </div>
+      </div>
+    </div>
+    <div id="calendario-grid"></div>
+    <div id="cal-legend" class="cal-legend">
+      <span class="legend-item pendiente">Pendiente</span>
+      <span class="legend-item en-proceso">En Proceso</span>
+      <span class="legend-item terminada">Terminada</span>
+    </div>
+  </section>
+</main>
+
+<!-- ===== MODALES ===== -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">Modal</h3>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn-secondary" id="modalCancel">Cancelar</button>
+      <button class="btn-primary" id="modalSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<!-- WEB COMPONENTS -->
+<script src="app.js"></script>
+</body>
+</html>
