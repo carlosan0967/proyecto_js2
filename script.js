@@ -92,4 +92,25 @@ function toast(msg, type = 'success') {
   // Date badge
   document.getElementById('dateBadge').textContent =
     new Date().toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-  
+
+    let modalSaveCallback = null;
+
+function openModal(title, bodyHTML, onSave) {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  modalSaveCallback = onSave;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  modalSaveCallback = null;
+}
+
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modalCancel').addEventListener('click', closeModal);
+document.getElementById('modalOverlay').addEventListener('click', e => {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+});
+document.getElementById('modalSave').addEventListener('click', () => {
+  if (modalSaveCallback) modalSaveCallback();
+});
