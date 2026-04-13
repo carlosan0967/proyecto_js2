@@ -158,3 +158,33 @@ function getProyectoNombre(id) {
     persist();
   }
   
+  function renderDashboard() {
+    document.getElementById('cnt-proyectos').textContent = DB.proyectos.length;
+    document.getElementById('cnt-actividades').textContent = DB.actividades.length;
+    document.getElementById('cnt-hitos').textContent = DB.hitos.length;
+    document.getElementById('cnt-recursos').textContent = DB.recursos.length;
+  
+    const raEl = document.getElementById('recent-actividades');
+    const recent = [...DB.actividades].slice(-5).reverse();
+    if (recent.length) {
+      raEl.innerHTML = recent.map(a => `
+        <div class="recent-item">
+          <span>${a.nombre}</span>
+          <cb-badge estado="${a.estado}"></cb-badge>
+        </div>`).join('');
+    } else {
+      raEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">Sin actividades registradas.</p>`;
+    }
+  
+    const rhEl = document.getElementById('recent-hitos');
+    const hpend = DB.hitos.filter(h => h.estado !== 'Cumplido').slice(0, 5);
+    if (hpend.length) {
+      rhEl.innerHTML = hpend.map(h => `
+        <div class="recent-item">
+          <span>${h.nombre}</span>
+          <cb-badge estado="${h.estado}"></cb-badge>
+        </div>`).join('');
+    } else {
+      rhEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">No hay hitos pendientes.</p>`;
+    }
+  }
