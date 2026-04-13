@@ -434,4 +434,108 @@ function getProyectoNombre(id) {
     const h = DB.hitos.find(x => x.id === id);
     openModal('Editar Hito', formHito(h), () => guardarHito(id));
   }
+ 
+  function renderRecursos() {
+    const tbody = document.getElementById('tbody-recursos');
+    if (!DB.recursos.length) {
+      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No hay recursos registrados.</td></tr>`;
+      return;
+    }
+    tbody.innerHTML = DB.recursos.map(r => `<tr>
+      <td>${r.identificacion}</td>
+      <td><strong>${r.nombre}</strong></td>
+      <td>${r.rol || '—'}</td>
+      <td>${r.arl || '—'}</td>
+      <td>${r.salario ? '$' + Number(r.salario).toLocaleString('es-CO') : '—'}</td>
+      <td>${r.tipoSangre || '—'}</td>
+      <td>
+        <div class="action-group">
+          <button class="btn-edit" onclick="editarRecurso('${r.id}')">Editar</button>
+          <button class="btn-danger" onclick="eliminarRecurso('${r.id}')">Eliminar</button>
+        </div>
+      </td>
+    </tr>`).join('');
+  }
   
+  document.getElementById('btnNuevoRecurso').addEventListener('click', () => {
+    openModal('Nuevo Recurso Humano', formRecurso(), () => guardarRecurso(null));
+  });
+  
+  function formRecurso(r = {}) {
+    const sangres = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
+    const roles   = ['Ingeniero','Supervisor','Arquitecto','Técnico','Obrero','Administrador','Otro'];
+    const generos = ['Masculino','Femenino','No binario','Prefiero no decir'];
+    return `
+      <div class="form-row">
+        <div class="form-group"><label>Identificación *</label>
+          <input id="f-id" value="${r.identificacion || ''}" placeholder="CC / NIT"/></div>
+        <div class="form-group"><label>Nombre completo *</label>
+          <input id="f-nombre" value="${r.nombre || ''}" placeholder="Nombre"/></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Fecha de Nacimiento</label>
+          <input id="f-fnac" type="date" value="${r.fechaNacimiento || ''}"/></div>
+        <div class="form-group"><label>Tipo de Sangre</label>
+          <select id="f-sangre">
+            <option value="">—</option>
+            ${sangres.map(s=>`<option value="${s}" ${r.tipoSangre===s?'selected':''}>${s}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>ARL</label>
+          <input id="f-arl" value="${r.arl || ''}" placeholder="Nombre ARL"/></div>
+        <div class="form-group"><label>Rol *</label>
+          <select id="f-rol">
+            <option value="">Seleccionar...</option>
+            ${roles.map(ro=>`<option value="${ro}" ${r.rol===ro?'selected':''}>${ro}</option>`).join('')}
+          </select></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Salario (COP) *</label>
+          <input id="f-salario" type="number" min="0" value="${r.salario || ''}" placeholder="1300000"/></div>
+        <div class="form-group"><label>Género (opcional)</label>
+          <select id="f-genero">
+            <option value="">—</option>
+            ${generos.map(g=>`<option value="${g}" ${r.genero===g?'selected':''}>${g}</option>`).join('')}
+          </select></div>
+      </div>`;
+  }
+  
+  function guardarRecurso(id) {
+    const identificacion  = document.getElementById('f-id').value.trim();
+    const nombre          = document.getElementById('f-nombre').value.trim();
+    const fechaNacimiento = document.getElementById('f-fnac').value;
+    const tipoSangre      = document.getElementById('f-sangre').value;
+    const arl             = document.getElementById('f-arl').value.trim();
+    const rol             = document.getElementById('f-rol').value;
+    const salario         = document.getElementById('f-salario').value;
+    const genero          = document.getElementById('f-genero').value;
+    if (!identificacion || !nombre || !rol || !salario) {
+      toast('Completa los campos obligatorios', 'error'); return;
+    }
+    if (id) {
+      const r = DB.recursos.find(x => x.id === id);
+      Object.assign(r, { identificacion, nombre, fechaNacimiento, tipoSangre, arl, rol, salario, genero });
+      toast('Recurso actualizado');
+    } else {
+      DB.recursos.push({ id: uid(), identificacion, nombre, fechaNacimiento, tipoSangre, arl, rol, salario, genero });
+      toast('Recurso creado');
+    }
+    persist();
+    closeModal();
+    renderRecursos();
+    actualizarFiltros();
+  }
+  
+  function editarRecurso(id) {
+    const r = DB.recursos.find(x => x.id === id);
+    openModal('Editar Recurso', formRecurso(r), () => guardarRecurso(id));
+  }
+  
+  function eliminarRecurso(id) {
+    if (!confirm('¿Eliminar este recurso?')) return;
+    DB.recursos = DB.recursos.filter(x => x.id !== id);
+    persist();
+    renderRecursos();
+    toast('Recurso eliminado', 'error');
+  }
