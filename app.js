@@ -255,6 +255,17 @@ function getProyectoNombre(id) {
     const p = DB.proyectos.find(x => x.id === id);
     openModal('Editar Proyecto', formProyecto(p), () => guardarProyecto(id));
   }
+
+  function eliminarProyecto(id) {
+    if (!confirm('¿Eliminar este proyecto? También se eliminarán sus actividades e hitos asociados.')) return;
+    DB.actividades = DB.actividades.filter(a => a.proyectoId !== id);
+    DB.hitos = DB.hitos.filter(h => h.proyectoId !== id);
+    DB.proyectos = DB.proyectos.filter(x => x.id !== id);
+    persist();
+    renderProyectos();
+    actualizarFiltros();
+    toast('Proyecto eliminado', 'error');
+  }
   
   function renderActividades(filtroId = document.getElementById('filtro-proyecto-act').value) {
     const tbody = document.getElementById('tbody-actividades');
