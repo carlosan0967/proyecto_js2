@@ -642,6 +642,7 @@ function actualizarFiltros() {
   
   /* ─── EXPOSE GLOBALS FOR INLINE HANDLERS ─────────────────── */
   window.editarProyecto   = editarProyecto;
+  window.eliminarProyecto = eliminarProyecto;
   window.editarActividad  = editarActividad;
   window.eliminarActividad= eliminarActividad;
   window.editarHito       = editarHito;
