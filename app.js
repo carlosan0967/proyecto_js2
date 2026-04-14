@@ -206,6 +206,7 @@ function getProyectoNombre(id) {
         <td>
           <div class="action-group">
             <button class="btn-edit" onclick="editarProyecto('${p.id}')">Editar</button>
+            <button class="btn-danger" onclick="eliminarProyecto('${p.id}')">Eliminar</button>
           </div>
         </td>
       </tr>`;
