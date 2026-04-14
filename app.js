@@ -284,6 +284,10 @@ function getProyectoNombre(id) {
   });
   
   document.getElementById('btnNuevaActividad').addEventListener('click', () => {
+    if (!DB.recursos.length) {
+      toast('Debes registrar al menos un recurso antes de crear una actividad', 'error');
+      return;
+    }
     openModal('Nueva Actividad', formActividad(), () => guardarActividad(null));
   });
   
