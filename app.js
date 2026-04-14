@@ -303,7 +303,7 @@ function getProyectoNombre(id) {
         <div class="form-group"><label>Duración estimada (días)</label>
           <input id="f-duracion" type="number" min="1" value="${a.duracion || ''}"/></div>
       </div>
-      <div class="form-group"><label>Responsable</label>
+      <div class="form-group"><label>Responsable *</label>
         <select id="f-responsable">${recursosOptions(a.responsableId)}</select></div>
       <div class="form-group"><label>Estado</label>
         <select id="f-estado">
@@ -321,6 +321,7 @@ function getProyectoNombre(id) {
     const responsableId = document.getElementById('f-responsable').value;
     const estado     = document.getElementById('f-estado').value;
     if (!nombre || !proyectoId) { toast('Nombre y proyecto son obligatorios', 'error'); return; }
+    if (!responsableId) { toast('Debes asignar un responsable a la actividad', 'error'); return; }
     if (id) {
       const a = DB.actividades.find(x => x.id === id);
       Object.assign(a, { nombre, proyectoId, fechaInicio, duracion: parseInt(duracion)||null, responsableId, estado });
