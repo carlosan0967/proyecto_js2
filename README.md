@@ -8,9 +8,10 @@ CampusBuild es una aplicación de gestión de proyectos y recursos humanos que o
 
 ## Gestión de Proyectos
 
-Creación, actualización y eliminación de proyectos con nombre, descripción, fecha de inicio y fecha de fin.
-Registro de actividades vinculadas a un proyecto, incluyendo responsable, fecha de inicio, duración estimada y estado (Pendiente, En Proceso, Terminada). Las actividades pueden ser actualizadas o eliminadas.
-Definición de hitos asociados a actividades específicas. Los hitos pueden actualizarse o eliminarse. El sistema marca automáticamente un hito como "Cumplido" cuando todas sus actividades asignadas alcanzan el estado "Terminada".
+El sistema permite crear un proyecto con nombre, descripción, fechas de inicio y fin. También debe permitir actualizarlo y eliminarlo.
+El sistema permite registrar actividades con responsable, fecha de inicio, duración estimada y estado (Pendiente, en proceso, terminada). También debe permitir actualizarlas y eliminarlas.
+El sistema permite definir hitos clave, asociarlos a actividades específicas, actualizarlos y eliminarlos. Los hitos se dan por cumplidos cuando todas las actividades asignadas a este se completan.
+
 
 ## Gestión de Recursos Humanos
 
