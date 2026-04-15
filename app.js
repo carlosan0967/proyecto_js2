@@ -136,28 +136,36 @@ document.getElementById('menuToggle').addEventListener('click', () => { // Agreg
 document.getElementById('dateBadge').textContent = // Establece el texto del badge de fecha en la barra superior
   new Date().toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); // Formatea la fecha actual en español colombiano mostrando día, mes y año
 
+// ─────────────────────────────────────────────────────────────
+// SISTEMA DE MODAL GENÉRICO
+// Abre y cierra un diálogo reutilizable para formularios
+// ─────────────────────────────────────────────────────────────
 
-    let modalSaveCallback = null;
+let modalSaveCallback = null; // Variable global que almacena la función a ejecutar cuando se presiona "Guardar" en el modal
 
-function openModal(title, bodyHTML, onSave) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalBody').innerHTML = bodyHTML;
-  modalSaveCallback = onSave;
-  document.getElementById('modalOverlay').classList.add('open');
+function openModal(title, bodyHTML, onSave) { // Función que abre el modal con un título, contenido HTML y una función de guardado
+  document.getElementById('modalTitle').textContent = title; // Establece el título del modal
+  document.getElementById('modalBody').innerHTML = bodyHTML; // Inserta el contenido HTML (formulario) dentro del modal
+  modalSaveCallback = onSave; // Guarda la función de guardado en la variable global para usarla después
+  document.getElementById('modalOverlay').classList.add('open'); // Muestra el modal agregando la clase "open" al overlay
 }
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  modalSaveCallback = null;
+
+function closeModal() { // Función que cierra el modal y limpia el callback
+  document.getElementById('modalOverlay').classList.remove('open'); // Oculta el modal quitando la clase "open"
+  modalSaveCallback = null; // Limpia la función de guardado para evitar ejecuciones accidentales
 }
 
-document.getElementById('modalClose').addEventListener('click', closeModal);
-document.getElementById('modalCancel').addEventListener('click', closeModal);
-document.getElementById('modalOverlay').addEventListener('click', e => {
-  if (e.target === document.getElementById('modalOverlay')) closeModal();
+document.getElementById('modalClose').addEventListener('click', closeModal); // Al hacer clic en el botón X del modal, lo cierra
+document.getElementById('modalCancel').addEventListener('click', closeModal); // Al hacer clic en "Cancelar", cierra el modal
+
+document.getElementById('modalOverlay').addEventListener('click', e => { // Agrega un listener al overlay del modal
+  if (e.target === document.getElementById('modalOverlay')) closeModal(); // Si el clic fue en el fondo oscuro (no en el modal en sí), lo cierra
 });
-document.getElementById('modalSave').addEventListener('click', () => {
-  if (modalSaveCallback) modalSaveCallback();
+
+document.getElementById('modalSave').addEventListener('click', () => { // Al hacer clic en "Guardar" del modal
+  if (modalSaveCallback) modalSaveCallback(); // Ejecuta la función de guardado si está definida
 });
+
 
 function getProyectoNombre(id) {
     const p = DB.proyectos.find(x => x.id === id);
