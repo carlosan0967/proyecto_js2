@@ -8,7 +8,7 @@ Cada vista renderiza tablas o componentes actualizados dinámicamente. Las opera
 El estado de los hitos se recalcula automáticamente cuando se modifican las actividades asociadas.
 La información se guarda de forma persistente en el almacenamiento local del navegador sin requerir conexión a servidor ni base de datos externa.
 
-# Requerimientos
+# Funcionalidad
 
 ## Gestión de Proyectos
 
@@ -20,5 +20,18 @@ Definición de hitos asociados a actividades específicas. Los hitos pueden actu
 
 Registro de recursos humanos con identificación, nombre, fecha de nacimiento, tipo de sangre, ARL, género (opcional), salario y rol (Ingeniero, Supervisor, Arquitecto, Técnico, Obrero, Administrador, Otro).
 Asignación de recursos humanos como responsables de actividades específicas.
+
+## Cronograma
+Visualización de un calendario mensual que muestra las actividades programadas por proyecto, destacando su estado y período de ejecución según la fecha de inicio y la duración estimada.
+Consideraciones Adicionales
+Interfaz fluida e intuitiva desarrollada con HTML, CSS y JavaScript.
+Implementación de Web Components para encapsular elementos reutilizables (indicadores de estado y barras de progreso).
+Persistencia de datos implementada mediante localStorage.
+
+## Consideraciones Adicionales
+
+Interfaz fluida e intuitiva desarrollada con HTML, CSS y JavaScript.
+Implementación de Web Components para encapsular elementos reutilizables (indicadores de estado y barras de progreso).
+Persistencia de datos implementada mediante localStorage.
 
 
