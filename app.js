@@ -63,23 +63,32 @@ class CbProgress extends HTMLElement { // Define la clase CbProgress que extiend
 customElements.define('cb-progress', CbProgress); // Registra el componente personalizado con la etiqueta <cb-progress> en el navegador
 
 
-  const KEY = 'campusbuild_data';
+// ─────────────────────────────────────────────────────────────
+// GESTIÓN DE DATOS EN localStorage
+// Carga, guarda y define la estructura inicial de la base de datos
+// ─────────────────────────────────────────────────────────────
 
-function loadData() {
-  try { return JSON.parse(localStorage.getItem(KEY)) || defaultData(); }
-  catch { return defaultData(); }
-}
-function saveData(d) {
-  localStorage.setItem(KEY, JSON.stringify(d));
-}
-function defaultData() {
-  return { proyectos: [], actividades: [], hitos: [], recursos: [] };
+const KEY = 'campusbuild_data'; // Constante con la clave usada para guardar y leer datos en localStorage
+
+function loadData() { // Función que carga los datos guardados en localStorage
+  try { return JSON.parse(localStorage.getItem(KEY)) || defaultData(); } // Intenta leer y parsear los datos; si no existen devuelve la estructura por defecto
+  catch { return defaultData(); } // Si hay un error al parsear (datos corruptos), devuelve la estructura por defecto
 }
 
-let DB = loadData();
+function saveData(d) { // Función que guarda el objeto de datos en localStorage
+  localStorage.setItem(KEY, JSON.stringify(d)); // Convierte el objeto a JSON y lo almacena con la clave KEY
+}
 
-function persist() { saveData(DB); }
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function defaultData() { // Función que retorna la estructura vacía inicial de la base de datos
+  return { proyectos: [], actividades: [], hitos: [], recursos: [] }; // Retorna un objeto con cuatro arreglos vacíos: proyectos, actividades, hitos y recursos
+}
+
+let DB = loadData(); // Carga los datos al iniciar la app y los guarda en la variable global DB
+
+function persist() { saveData(DB); } // Función auxiliar que guarda el estado actual de DB en localStorage
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); } // Genera un ID único combinando la hora actual y un número aleatorio en base 36
+
 
 function toast(msg, type = 'success') {
     const el = document.getElementById('toast');
