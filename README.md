@@ -22,6 +22,7 @@ Registro de recursos humanos con identificación, nombre, fecha de nacimiento, t
 Asignación de recursos humanos como responsables de actividades específicas.
 
 ## Cronograma
+
 Visualización de un calendario mensual que muestra las actividades programadas por proyecto, destacando su estado y período de ejecución según la fecha de inicio y la duración estimada.
 Consideraciones Adicionales
 Interfaz fluida e intuitiva desarrollada con HTML, CSS y JavaScript.
@@ -35,3 +36,8 @@ Implementación de Web Components para encapsular elementos reutilizables (indic
 Persistencia de datos implementada mediante localStorage.
 
 
+## Arquitectura y Tecnología
+
+HTML/CSS/JavaScript: Construcción estándar sin frameworks externos. CSS utiliza variables para mantener consistencia visual y diseño responsivo.
+Web Components: Se definen dos componentes nativos: cb-badge para la visualización de estados (Pendiente, En Proceso, Terminada, Cumplido) y cb-progress para indicar el porcentaje de avance de cada proyecto.
+Persistencia: Los datos se serializan a JSON y se almacenan en localStorage. La función de carga maneja errores de parseo y genera datos vacíos por defecto si no existe información previa
