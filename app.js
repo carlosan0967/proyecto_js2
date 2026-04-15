@@ -89,14 +89,18 @@ function persist() { saveData(DB); } // Función auxiliar que guarda el estado a
 
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); } // Genera un ID único combinando la hora actual y un número aleatorio en base 36
 
+// ─────────────────────────────────────────────────────────────
+// SISTEMA DE NOTIFICACIONES (TOAST)
+// ─────────────────────────────────────────────────────────────
 
-function toast(msg, type = 'success') {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.className = `toast show ${type}`;
-    clearTimeout(el._t);
-    el._t = setTimeout(() => el.className = 'toast', 2800);
-  }
+function toast(msg, type = 'success') { // Función que muestra una notificación temporal; recibe el mensaje y el tipo (por defecto "success")
+  const el = document.getElementById('toast'); // Obtiene el elemento HTML del toast por su ID
+  el.textContent = msg; // Establece el texto del toast con el mensaje recibido
+  el.className = `toast show ${type}`;
+  clearTimeout(el._t); // Cancela cualquier temporizador previo para evitar que se oculte antes de tiempo
+  el._t = setTimeout(() => el.className = 'toast', 2800); // Programa que el toast se oculte automáticamente después de 2.8 segundos
+}
+
   
   const titles = {
     dashboard: 'Dashboard', proyectos: 'Proyectos',
