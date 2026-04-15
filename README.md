@@ -49,6 +49,12 @@ Sistema de notificaciones tipo toast para retroalimentación inmediata de operac
 Filtros dinámicos por proyecto en las vistas de Actividades y Calendario, permitiendo visualizar datos segmentados.
 Cálculo automático del porcentaje de avance por proyecto, basado en la proporción de actividades finalizadas respecto al total.
 Sincronización automática del estado de los hitos: se recalcula y actualiza a "Cumplido" o "Pendiente" cada vez que se modifica una actividad asociada.
+Navegación responsiva con menú lateral colapsable que se cierra automáticamente en resoluciones inferiores a 768px.
+Panel de Dashboard con listados de actividades recientes y hitos pendientes para seguimiento rápido.
+Validación de campos obligatorios en todos los formularios y diálogos de confirmación nativos para operaciones de eliminación.
+Generación automática de identificadores únicos alfanuméricos para cada registro creado.
+Calendario interactivo con navegación mensual, resaltado visual del día actual y truncamiento inteligente de eventos (muestra un máximo de tres por celda con indicador de cantidad restante).
+Manejo seguro de carga de datos con bloque try/catch que restaura la estructura base en caso de corrupción o ausencia de datos en localStorage.
 
 ## Uso de la Aplicación
 
