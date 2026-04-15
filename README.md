@@ -40,4 +40,6 @@ Persistencia de datos implementada mediante localStorage.
 
 HTML/CSS/JavaScript: Construcción estándar sin frameworks externos. CSS utiliza variables para mantener consistencia visual y diseño responsivo.
 Web Components: Se definen dos componentes nativos: cb-badge para la visualización de estados (Pendiente, En Proceso, Terminada, Cumplido) y cb-progress para indicar el porcentaje de avance de cada proyecto.
-Persistencia: Los datos se serializan a JSON y se almacenan en localStorage. La función de carga maneja errores de parseo y genera datos vacíos por defecto si no existe información previa
+Persistencia: Los datos se serializan a JSON y se almacenan en localStorage. La función de carga maneja errores de parseo y genera datos vacíos por defecto si no existe información previa.
+Enrutamiento de Vistas: La navegación se resuelve mediante la alternancia de clases CSS (active) en contenedores de vista, disparando las funciones de renderizado correspondientes.
+Modales: Los formularios de creación y edición se inyectan dinámicamente en un contenedor modal superpuesto, con callbacks asignados para guardar o descartar cambios.
