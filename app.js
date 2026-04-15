@@ -167,48 +167,56 @@ document.getElementById('modalSave').addEventListener('click', () => { // Al hac
 });
 
 
-function getProyectoNombre(id) {
-    const p = DB.proyectos.find(x => x.id === id);
-    return p ? p.nombre : '—';
-  }
-  function getActividadNombre(id) {
-    const a = DB.actividades.find(x => x.id === id);
-    return a ? a.nombre : '—';
-  }
-  function getRecursoNombre(id) {
-    const r = DB.recursos.find(x => x.id === id);
-    return r ? r.nombre : '—';
-  }
-  
-  function proyectosOptions(selected = '') {
-    return DB.proyectos.map(p =>
-      `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${p.nombre}</option>`
-    ).join('');
-  }
-  function recursosOptions(selected = '') {
-    return [{ id: '', nombre: '— Sin asignar —' }, ...DB.recursos].map(r =>
-      `<option value="${r.id}" ${r.id === selected ? 'selected' : ''}>${r.nombre}</option>`
-    ).join('');
-  }
-  
-  function proyectoProgress(pId) {
-    const acts = DB.actividades.filter(a => a.proyectoId === pId);
-    if (!acts.length) return 0;
-    const done = acts.filter(a => a.estado === 'Terminada').length;
-    return Math.round((done / acts.length) * 100);
-  }
-  
-  function actualizarHitosEstado() {
-    DB.hitos.forEach(h => {
-      if (!h.actividadesIds || !h.actividadesIds.length) return;
-      const todas = h.actividadesIds.every(aId => {
-        const a = DB.actividades.find(x => x.id === aId);
-        return a && a.estado === 'Terminada';
-      });
-      h.estado = todas ? 'Cumplido' : 'Pendiente-h';
+// ─────────────────────────────────────────────────────────────
+// FUNCIONES AUXILIARES DE BÚSQUEDA Y SELECTS
+// ─────────────────────────────────────────────────────────────
+
+function getProyectoNombre(id) { // Función que devuelve el nombre de un proyecto dado su ID
+  const p = DB.proyectos.find(x => x.id === id); // Busca el proyecto en el arreglo DB.proyectos por su ID
+  return p ? p.nombre : '—'; // Si lo encuentra retorna el nombre; si no, retorna un guión
+}
+
+function getActividadNombre(id) { // Función que devuelve el nombre de una actividad dado su ID
+  const a = DB.actividades.find(x => x.id === id); // Busca la actividad en DB.actividades por su ID
+  return a ? a.nombre : '—'; // Si la encuentra retorna el nombre; si no, retorna un guión
+}
+
+function getRecursoNombre(id) { // Función que devuelve el nombre de un recurso humano dado su ID
+  const r = DB.recursos.find(x => x.id === id); // Busca el recurso en DB.recursos por su ID
+  return r ? r.nombre : '—'; // Si lo encuentra retorna el nombre; si no, retorna un guión
+}
+
+function proyectosOptions(selected = '') { // Función que genera las opciones HTML <option> de todos los proyectos para un <select>
+  return DB.proyectos.map(p => // Itera sobre cada proyecto en la base de datos
+    `<option value="${p.id}" ${p.id === selected ? 'selected' : ''}>${p.nombre}</option>`
+  ).join(''); // Une todos los <option> en una sola cadena HTML
+}
+
+function recursosOptions(selected = '') { // Función que genera las opciones HTML <option> de todos los recursos para un <select>
+  return [{ id: '', nombre: '— Sin asignar —' }, ...DB.recursos].map(r => // Agrega la opción "Sin asignar" al inicio y luego itera los recursos
+    `<option value="${r.id}" ${r.id === selected ? 'selected' : ''}>${r.nombre}</option>`
+  ).join(''); // Une todas las opciones en una cadena HTML
+}
+
+function proyectoProgress(pId) { // Función que calcula el porcentaje de progreso de un proyecto basado en sus actividades terminadas
+  const acts = DB.actividades.filter(a => a.proyectoId === pId); // Filtra todas las actividades que pertenecen al proyecto indicado
+  if (!acts.length) return 0; // Si no hay actividades, el progreso es 0%
+  const done = acts.filter(a => a.estado === 'Terminada').length; // Cuenta cuántas actividades tienen estado "Terminada"
+  return Math.round((done / acts.length) * 100); // Calcula y redondea el porcentaje de actividades terminadas
+}
+
+function actualizarHitosEstado() { // Función que recalcula automáticamente el estado de todos los hitos
+  DB.hitos.forEach(h => { // Itera sobre cada hito en la base de datos
+    if (!h.actividadesIds || !h.actividadesIds.length) return; // Si el hito no tiene actividades asociadas, lo omite
+    const todas = h.actividadesIds.every(aId => { // Verifica si TODAS las actividades del hito están terminadas
+      const a = DB.actividades.find(x => x.id === aId); // Busca cada actividad asociada al hito por su ID
+      return a && a.estado === 'Terminada'; // Retorna true solo si la actividad existe y está terminada
     });
-    persist();
-  }
+    h.estado = todas ? 'Cumplido' : 'Pendiente-h'; // Si todas las actividades están terminadas el hito es "Cumplido"; si no, "Pendiente-h"
+  });
+  persist(); // Guarda los cambios de estado de los hitos en localStorage
+}
+
   
   function renderDashboard() {
     document.getElementById('cnt-proyectos').textContent = DB.proyectos.length;
