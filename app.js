@@ -752,9 +752,11 @@ window.editarHito        = editarHito;       // Expone editarHito al ámbito glo
 window.editarRecurso     = editarRecurso;    // Expone editarRecurso al ámbito global
 window.eliminarRecurso   = eliminarRecurso;  // Expone eliminarRecurso al ámbito global
 
+// ─────────────────────────────────────────────────────────────
+// INICIALIZACIÓN DE LA APLICACIÓN
+// Carga inicial de todos los módulos al abrir la app
+// ─────────────────────────────────────────────────────────────
 
-  /* ─── INIT ────────────────────────────────────────────────── */
-  actualizarFiltros();
-  actualizarHitosEstado();
-  renderDashboard();
-  
+actualizarFiltros();      // Carga las opciones de proyectos en los selectores de filtro al iniciar
+actualizarHitosEstado();  // Recalcula y corrige el estado de los hitos al iniciar (por si hubo cambios externos)
+renderDashboard();        // Renderiza el dashboard como vista inicial de la aplicación
