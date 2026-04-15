@@ -1,39 +1,37 @@
-class CbBadge extends HTMLElement {
-    static get observedAttributes() { return ['estado']; }
-    connectedCallback() { this._render(); }
-    attributeChangedCallback() { this._render(); }
-    _render() {
-      const e = this.getAttribute('estado') || '';
-      const map = {
-        'Pendiente':  { cls: 'badge-pendiente', lbl: 'Pendiente' },
-        'En Proceso': { cls: 'badge-proceso',   lbl: 'En Proceso' },
-        'Terminada':  { cls: 'badge-terminada', lbl: 'Terminada' },
-        'Cumplido':   { cls: 'badge-cumplido',  lbl: 'Cumplido' },
-        'Pendiente-h':{ cls: 'badge-pendiente-h',lbl: 'Pendiente' },
-      };
-      const d = map[e] || { cls: '', lbl: e };
-      this.innerHTML = `<span class="badge ${d.cls}">${d.lbl}</span>`;
-    }
+// ─────────────────────────────────────────────────────────────
+// COMPONENTE WEB PERSONALIZADO: <cb-badge>
+// Muestra una etiqueta de color según el estado de un elemento
+// ─────────────────────────────────────────────────────────────
+
+class CbBadge extends HTMLElement { // Define la clase CbBadge que extiende HTMLElement para crear un componente web personalizado
+
+  static get observedAttributes() { return ['estado']; } // Le dice al navegador que observe cambios en el atributo "estado"
+
+  connectedCallback() { this._render(); } // Se ejecuta automáticamente cuando el componente es insertado en el DOM; llama a _render()
+
+  attributeChangedCallback() { this._render(); } // Se ejecuta automáticamente cuando el atributo "estado" cambia; vuelve a llamar a _render()
+
+  _render() { // Método privado que construye el HTML interno del componente
+
+    const e = this.getAttribute('estado') || ''; // Obtiene el valor del atributo "estado"; si no existe, usa cadena vacía
+
+    const map = { // Objeto que mapea cada estado posible a su clase CSS y etiqueta de texto
+      'Pendiente':  { cls: 'badge-pendiente', lbl: 'Pendiente' },   // Estado "Pendiente" → clase CSS badge-pendiente, texto "Pendiente"
+      'En Proceso': { cls: 'badge-proceso',   lbl: 'En Proceso' },  // Estado "En Proceso" → clase CSS badge-proceso, texto "En Proceso"
+      'Terminada':  { cls: 'badge-terminada', lbl: 'Terminada' },   // Estado "Terminada" → clase CSS badge-terminada, texto "Terminada"
+      'Cumplido':   { cls: 'badge-cumplido',  lbl: 'Cumplido' },    // Estado "Cumplido" → clase CSS badge-cumplido, texto "Cumplido"
+      'Pendiente-h':{ cls: 'badge-pendiente-h',lbl: 'Pendiente' },  // Estado interno de hito pendiente → clase badge-pendiente-h, texto "Pendiente"
+    };
+
+    const d = map[e] || { cls: '', lbl: e }; // Busca el estado en el mapa; si no lo encuentra, usa clase vacía y el valor tal cual
+
+    this.innerHTML = `<span class="badge ${d.cls}">${d.lbl}</span>`;
   }
-  customElements.define('cb-badge', CbBadge);
-  
-  class CbProgress extends HTMLElement {
-    static get observedAttributes() { return ['value']; }
-    connectedCallback() { this._render(); }
-    attributeChangedCallback() { this._render(); }
-    _render() {
-      const v = Math.min(100, Math.max(0, parseInt(this.getAttribute('value')) || 0));
-      this.innerHTML = `
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="progress-bar" style="flex:1">
-            <div class="progress-fill" style="width:${v}%"></div>
-          </div>
-          <span style="font-size:.78rem;color:var(--text2);width:32px;text-align:right">${v}%</span>
-        </div>`;
-    }
-  }
-  customElements.define('cb-progress', CbProgress);
-  
+}
+
+customElements.define('cb-badge', CbBadge); // Registra el componente personalizado con la etiqueta <cb-badge> en el navegador
+
+
   const KEY = 'campusbuild_data';
 
 function loadData() {
