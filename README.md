@@ -8,9 +8,9 @@ CampusBuild es una aplicación de gestión de proyectos y recursos humanos que o
 
 ## Gestión de Proyectos
 
-El sistema permite crear un proyecto con nombre, descripción, fechas de inicio y fin. También debe permitir actualizarlo y eliminarlo.
-El sistema permite registrar actividades con responsable, fecha de inicio, duración estimada y estado (Pendiente, en proceso, terminada). También debe permitir actualizarlas y eliminarlas.
-El sistema permite definir hitos clave, asociarlos a actividades específicas, actualizarlos y eliminarlos. Los hitos se dan por cumplidos cuando todas las actividades asignadas a este se completan.
+Creación, actualización y eliminación de proyectos con nombre, descripción, fecha de inicio y fecha de fin.
+Registro de actividades vinculadas a un proyecto, incluyendo responsable, fecha de inicio, duración estimada y estado (Pendiente, En Proceso, Terminada). Las actividades pueden ser actualizadas o eliminadas.
+Definición de hitos asociados a actividades específicas. Los hitos pueden actualizarse o eliminarse. El sistema marca automáticamente un hito como "Cumplido" cuando todas sus actividades asignadas alcanzan el estado "Terminada".
 
 
 ## Gestión de Recursos Humanos
@@ -40,6 +40,15 @@ Web Components: Se definen dos componentes nativos: cb-badge para la visualizaci
 Persistencia: Los datos se serializan a JSON y se almacenan en localStorage. La función de carga maneja errores de parseo y genera datos vacíos por defecto si no existe información previa.
 Enrutamiento de Vistas: La navegación se resuelve mediante la alternancia de clases CSS (active) en contenedores de vista, disparando las funciones de renderizado correspondientes.
 Modales: Los formularios de creación y edición se inyectan dinámicamente en un contenedor modal superpuesto, con callbacks asignados para guardar o descartar cambios.
+
+## Funcionalidades Adicionales (Implementación en JavaScript)
+
+A partir del análisis del código en app.js, se han integrado los siguientes elementos para ampliar la funcionalidad y la experiencia de uso:
+
+Sistema de notificaciones tipo toast para retroalimentación inmediata de operaciones exitosas o errores de validación.
+Filtros dinámicos por proyecto en las vistas de Actividades y Calendario, permitiendo visualizar datos segmentados.
+Cálculo automático del porcentaje de avance por proyecto, basado en la proporción de actividades finalizadas respecto al total.
+Sincronización automática del estado de los hitos: se recalcula y actualiza a "Cumplido" o "Pendiente" cada vez que se modifica una actividad asociada.
 
 ## Uso de la Aplicación
 
