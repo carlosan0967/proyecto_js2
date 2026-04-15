@@ -32,6 +32,37 @@ class CbBadge extends HTMLElement { // Define la clase CbBadge que extiende HTML
 customElements.define('cb-badge', CbBadge); // Registra el componente personalizado con la etiqueta <cb-badge> en el navegador
 
 
+
+// ─────────────────────────────────────────────────────────────
+// COMPONENTE WEB PERSONALIZADO: <cb-progress>
+// Muestra una barra de progreso con porcentaje
+// ─────────────────────────────────────────────────────────────
+
+class CbProgress extends HTMLElement { // Define la clase CbProgress que extiende HTMLElement para crear un componente de barra de progreso
+
+  static get observedAttributes() { return ['value']; } // Le dice al navegador que observe cambios en el atributo "value"
+
+  connectedCallback() { this._render(); } // Se ejecuta cuando el componente es insertado en el DOM; llama a _render()
+
+  attributeChangedCallback() { this._render(); } // Se ejecuta cuando el atributo "value" cambia; vuelve a renderizar
+
+  _render() { // Método privado que construye el HTML de la barra de progreso
+
+    const v = Math.min(100, Math.max(0, parseInt(this.getAttribute('value')) || 0)); // Lee el atributo "value", lo convierte a entero y lo limita entre 0 y 100
+
+    this.innerHTML = `
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="progress-bar" style="flex:1">
+          <div class="progress-fill" style="width:${v}%"></div>
+        </div>
+        <span style="font-size:.78rem;color:var(--text2);width:32px;text-align:right">${v}%</span>
+      </div>`;
+  }
+}
+
+customElements.define('cb-progress', CbProgress); // Registra el componente personalizado con la etiqueta <cb-progress> en el navegador
+
+
   const KEY = 'campusbuild_data';
 
 function loadData() {
