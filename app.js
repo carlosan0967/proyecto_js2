@@ -101,39 +101,41 @@ function toast(msg, type = 'success') { // Función que muestra una notificació
   el._t = setTimeout(() => el.className = 'toast', 2800); // Programa que el toast se oculte automáticamente después de 2.8 segundos
 }
 
-  
-  const titles = {
-    dashboard: 'Dashboard', proyectos: 'Proyectos',
-    actividades: 'Actividades', hitos: 'Hitos',
-    recursos: 'Recursos Humanos', calendario: 'Calendario'
-  };
-  
-  document.querySelectorAll('.nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const v = btn.dataset.view;
-      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      document.querySelectorAll('.view').forEach(s => s.classList.remove('active'));
-      document.getElementById('view-' + v).classList.add('active');
-      document.getElementById('pageTitle').textContent = titles[v];
-      if (v === 'dashboard') renderDashboard();
-      if (v === 'proyectos') renderProyectos();
-      if (v === 'actividades') renderActividades();
-      if (v === 'hitos') renderHitos();
-      if (v === 'recursos') renderRecursos();
-      if (v === 'calendario') renderCalendario();
-      // close sidebar on mobile
-      if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
-    });
+// ─────────────────────────────────────────────────────────────
+// NAVEGACIÓN ENTRE VISTAS
+// ─────────────────────────────────────────────────────────────
+
+const titles = { // Objeto que mapea cada ID de vista con su título a mostrar en la barra superior
+  dashboard: 'Dashboard', proyectos: 'Proyectos',          // Títulos para dashboard y proyectos
+  actividades: 'Actividades', hitos: 'Hitos',               // Títulos para actividades e hitos
+  recursos: 'Recursos Humanos', calendario: 'Calendario'    // Títulos para recursos y calendario
+};
+
+document.querySelectorAll('.nav-btn').forEach(btn => { // Selecciona todos los botones de navegación del sidebar y les agrega un evento
+  btn.addEventListener('click', () => { // Agrega un listener de clic a cada botón de navegación
+    const v = btn.dataset.view; // Obtiene el nombre de la vista desde el atributo data-view del botón
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active')); // Quita la clase "active" de todos los botones de navegación
+    btn.classList.add('active'); // Agrega la clase "active" solo al botón que fue clickeado
+    document.querySelectorAll('.view').forEach(s => s.classList.remove('active')); // Oculta todas las vistas quitando la clase "active"
+    document.getElementById('view-' + v).classList.add('active'); // Muestra solo la vista correspondiente al botón clickeado
+    document.getElementById('pageTitle').textContent = titles[v]; // Actualiza el título de la página con el nombre de la vista activa
+    if (v === 'dashboard') renderDashboard();       // Si la vista es dashboard, renderiza el dashboard
+    if (v === 'proyectos') renderProyectos();       // Si la vista es proyectos, renderiza la tabla de proyectos
+    if (v === 'actividades') renderActividades();   // Si la vista es actividades, renderiza la tabla de actividades
+    if (v === 'hitos') renderHitos();               // Si la vista es hitos, renderiza la tabla de hitos
+    if (v === 'recursos') renderRecursos();         // Si la vista es recursos, renderiza la tabla de recursos humanos
+    if (v === 'calendario') renderCalendario();     // Si la vista es calendario, renderiza el calendario
+    if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open'); // En pantallas móviles, cierra el sidebar automáticamente al navegar
   });
-  
-  document.getElementById('menuToggle').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('open');
-  });
-  
-  // Date badge
-  document.getElementById('dateBadge').textContent =
-    new Date().toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+});
+
+document.getElementById('menuToggle').addEventListener('click', () => { // Agrega un listener al botón de menú hamburguesa para móviles
+  document.getElementById('sidebar').classList.toggle('open'); // Alterna la clase "open" del sidebar para mostrarlo u ocultarlo
+});
+
+document.getElementById('dateBadge').textContent = // Establece el texto del badge de fecha en la barra superior
+  new Date().toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' }); // Formatea la fecha actual en español colombiano mostrando día, mes y año
+
 
     let modalSaveCallback = null;
 
