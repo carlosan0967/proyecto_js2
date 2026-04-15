@@ -725,14 +725,19 @@ document.getElementById('calNext').addEventListener('click', () => { // Listener
 document.getElementById('filtro-proyecto-cal').addEventListener('change', renderCalendario); // Al cambiar el filtro de proyecto del calendario, lo vuelve a renderizar
 
 
-function actualizarFiltros() {
-    ['filtro-proyecto-act', 'filtro-proyecto-cal'].forEach(id => {
-      const sel = document.getElementById(id);
-      const cur = sel.value;
-      sel.innerHTML = `<option value="">Todos los proyectos</option>` +
-        DB.proyectos.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${p.nombre}</option>`).join('');
-    });
-  }
+// ─────────────────────────────────────────────────────────────
+// ACTUALIZACIÓN DE SELECTORES DE FILTRO
+// ─────────────────────────────────────────────────────────────
+
+function actualizarFiltros() { // Función que actualiza las opciones de los selectores de filtro de proyectos
+  ['filtro-proyecto-act', 'filtro-proyecto-cal'].forEach(id => { // Itera sobre los IDs de los dos selectores de filtro
+    const sel = document.getElementById(id); // Obtiene el elemento select por su ID
+    const cur = sel.value; // Guarda el valor actualmente seleccionado para restaurarlo después de actualizar
+    sel.innerHTML = `<option value="">Todos los proyectos</option>` +
+      DB.proyectos.map(p => `<option value="${p.id}" ${p.id===cur?'selected':''}>${p.nombre}</option>`).join('');
+  });
+}
+
   
   /* ─── EXPOSE GLOBALS FOR INLINE HANDLERS ─────────────────── */
   window.editarProyecto   = editarProyecto;
