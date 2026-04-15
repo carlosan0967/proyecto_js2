@@ -442,91 +442,98 @@ function eliminarActividad(id) { // Función que elimina una actividad y la desv
 }
 
   
-  function renderHitos() {
-    const tbody = document.getElementById('tbody-hitos');
-    if (!DB.hitos.length) {
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No hay hitos registrados.</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = DB.hitos.map(h => {
-      const acts = (h.actividadesIds || []).map(aId => getActividadNombre(aId)).join(', ') || '—';
-      return `<tr>
-        <td><strong>${h.nombre}</strong></td>
-        <td>${getProyectoNombre(h.proyectoId)}</td>
-        <td style="max-width:200px;font-size:.82rem;color:var(--text2)">${acts}</td>
-        <td><cb-badge estado="${h.estado}"></cb-badge></td>
-        <td>
-          <div class="action-group">
-            <button class="btn-edit" onclick="editarHito('${h.id}')">Editar</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
+// ─────────────────────────────────────────────────────────────
+// VISTA: HITOS
+// CRUD para gestionar hitos de proyectos
+// ─────────────────────────────────────────────────────────────
+
+function renderHitos() { // Función que renderiza la tabla de hitos
+  const tbody = document.getElementById('tbody-hitos'); // Obtiene el cuerpo de la tabla de hitos
+  if (!DB.hitos.length) { // Si no hay hitos registrados
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">No hay hitos registrados.</td></tr>`;
+    return; // Sale de la función
   }
-  
-  document.getElementById('btnNuevoHito').addEventListener('click', () => {
-    openModal('Nuevo Hito', formHito(), () => guardarHito(null));
-  });
-  
-  function formHito(h = {}) {
-    const actsDelProyecto = h.proyectoId
-      ? DB.actividades.filter(a => a.proyectoId === h.proyectoId)
-      : [];
-    const actsChecks = actsDelProyecto.map(a =>
-      `<label><input type="checkbox" value="${a.id}" ${(h.actividadesIds||[]).includes(a.id)?'checked':''}> ${a.nombre}</label>`
-    ).join('');
-  
-    return `
-      <div class="form-group"><label>Nombre *</label>
-        <input id="f-nombre" value="${h.nombre || ''}" placeholder="Nombre del hito"/></div>
-      <div class="form-group"><label>Proyecto *</label>
-        <select id="f-proyecto" onchange="actualizarActsHito(this.value, ${JSON.stringify((h.actividadesIds||[]))})">
-          <option value="">Seleccionar...</option>${proyectosOptions(h.proyectoId)}</select></div>
-      <div class="form-group"><label>Actividades asociadas</label>
-        <div class="check-list" id="checklist-acts">
-          ${actsChecks || '<span style="color:var(--text2);font-size:.82rem">Selecciona un proyecto primero</span>'}
+  tbody.innerHTML = DB.hitos.map(h => { // Genera una fila HTML por cada hito
+    const acts = (h.actividadesIds || []).map(aId => getActividadNombre(aId)).join(', ') || '—'; // Obtiene los nombres de todas las actividades del hito y los une con coma
+    return `<tr>
+      <td><strong>${h.nombre}</strong></td>
+      <td>${getProyectoNombre(h.proyectoId)}</td>
+      <td style="max-width:200px;font-size:.82rem;color:var(--text2)">${acts}</td>
+      <td><cb-badge estado="${h.estado}"></cb-badge></td>
+      <td>
+        <div class="action-group">
+          <button class="btn-edit" onclick="editarHito('${h.id}')">Editar</button>
         </div>
-      </div>`;
+      </td>
+    </tr>`;
+  }).join(''); // Une todas las filas y las inserta en el tbody
+}
+
+document.getElementById('btnNuevoHito').addEventListener('click', () => { // Listener para el botón "Nuevo Hito"
+  openModal('Nuevo Hito', formHito(), () => guardarHito(null)); // Abre el modal con el formulario vacío para crear un nuevo hito
+});
+
+function formHito(h = {}) { // Función que genera el HTML del formulario de hito; recibe datos del hito para edición
+  const actsDelProyecto = h.proyectoId // Si el hito ya tiene proyecto asignado
+    ? DB.actividades.filter(a => a.proyectoId === h.proyectoId) // Filtra las actividades del proyecto del hito
+    : []; // Si no tiene proyecto, el arreglo está vacío
+
+  const actsChecks = actsDelProyecto.map(a => // Genera un checkbox HTML por cada actividad del proyecto
+    `<label><input type="checkbox" value="${a.id}" ${(h.actividadesIds||[]).includes(a.id)?'checked':''}> ${a.nombre}</label>`
+  ).join(''); // Une todos los checkboxes en una cadena HTML
+
+  return `
+    <div class="form-group"><label>Nombre *</label>
+      <input id="f-nombre" value="${h.nombre || ''}" placeholder="Nombre del hito"/></div>
+    <div class="form-group"><label>Proyecto *</label>
+      <select id="f-proyecto" onchange="actualizarActsHito(this.value, ${JSON.stringify((h.actividadesIds||[]))})">
+        <option value="">Seleccionar...</option>${proyectosOptions(h.proyectoId)}</select></div>
+    <div class="form-group"><label>Actividades asociadas</label>
+      <div class="check-list" id="checklist-acts">
+        ${actsChecks || '<span style="color:var(--text2);font-size:.82rem">Selecciona un proyecto primero</span>'}
+      </div>
+    </div>`;
+}
+
+window.actualizarActsHito = function(proyId, selIds = []) { // Función global que actualiza los checkboxes de actividades al cambiar el proyecto en el formulario de hito
+  const acts = DB.actividades.filter(a => a.proyectoId === proyId); // Obtiene las actividades del proyecto seleccionado
+  const el = document.getElementById('checklist-acts'); // Obtiene el contenedor de checkboxes
+  if (!el) return; // Si el elemento no existe, sale de la función
+  if (!acts.length) { // Si el proyecto no tiene actividades
+    el.innerHTML = '<span style="color:var(--text2);font-size:.82rem">No hay actividades en este proyecto</span>'; // Muestra mensaje informativo
+    return; // Sale de la función
   }
-  
-  window.actualizarActsHito = function(proyId, selIds = []) {
-    const acts = DB.actividades.filter(a => a.proyectoId === proyId);
-    const el = document.getElementById('checklist-acts');
-    if (!el) return;
-    if (!acts.length) {
-      el.innerHTML = '<span style="color:var(--text2);font-size:.82rem">No hay actividades en este proyecto</span>';
-      return;
-    }
-    el.innerHTML = acts.map(a =>
-      `<label><input type="checkbox" value="${a.id}" ${selIds.includes(a.id)?'checked':''}> ${a.nombre}</label>`
-    ).join('');
-  };
-  
-  function guardarHito(id) {
-    const nombre     = document.getElementById('f-nombre').value.trim();
-    const proyectoId = document.getElementById('f-proyecto').value;
-    if (!nombre || !proyectoId) { toast('Nombre y proyecto son obligatorios', 'error'); return; }
-    const checks = document.querySelectorAll('#checklist-acts input[type="checkbox"]:checked');
-    const actividadesIds = Array.from(checks).map(c => c.value);
-  
-    if (id) {
-      const h = DB.hitos.find(x => x.id === id);
-      Object.assign(h, { nombre, proyectoId, actividadesIds });
-      toast('Hito actualizado');
-    } else {
-      DB.hitos.push({ id: uid(), nombre, proyectoId, actividadesIds, estado: 'Pendiente-h' });
-      toast('Hito creado');
-    }
-    actualizarHitosEstado();
-    persist();
-    closeModal();
-    renderHitos();
+  el.innerHTML = acts.map(a => // Genera un checkbox por cada actividad del proyecto
+    `<label><input type="checkbox" value="${a.id}" ${selIds.includes(a.id)?'checked':''}> ${a.nombre}</label>`
+  ).join(''); // Inserta los checkboxes en el contenedor
+};
+
+function guardarHito(id) { // Función que guarda un hito nuevo o actualiza uno existente
+  const nombre     = document.getElementById('f-nombre').value.trim(); // Lee el nombre del hito
+  const proyectoId = document.getElementById('f-proyecto').value; // Lee el ID del proyecto seleccionado
+  if (!nombre || !proyectoId) { toast('Nombre y proyecto son obligatorios', 'error'); return; } // Valida campos obligatorios
+  const checks = document.querySelectorAll('#checklist-acts input[type="checkbox"]:checked'); // Obtiene todos los checkboxes marcados en la lista de actividades
+  const actividadesIds = Array.from(checks).map(c => c.value); // Convierte los checkboxes marcados en un arreglo de IDs de actividades
+
+  if (id) { // Si hay ID, es una edición
+    const h = DB.hitos.find(x => x.id === id); // Busca el hito existente
+    Object.assign(h, { nombre, proyectoId, actividadesIds }); // Actualiza las propiedades del hito
+    toast('Hito actualizado'); // Muestra notificación de éxito
+  } else { // Si no hay ID, es un hito nuevo
+    DB.hitos.push({ id: uid(), nombre, proyectoId, actividadesIds, estado: 'Pendiente-h' }); // Crea y agrega el nuevo hito con estado inicial "Pendiente-h"
+    toast('Hito creado'); // Muestra notificación de éxito
   }
-  
-  function editarHito(id) {
-    const h = DB.hitos.find(x => x.id === id);
-    openModal('Editar Hito', formHito(h), () => guardarHito(id));
-  }
+  actualizarHitosEstado(); // Recalcula el estado del hito según sus actividades
+  persist(); // Guarda los cambios en localStorage
+  closeModal(); // Cierra el modal
+  renderHitos(); // Vuelve a renderizar la tabla de hitos
+}
+
+function editarHito(id) { // Función que abre el modal de edición para un hito existente
+  const h = DB.hitos.find(x => x.id === id); // Busca el hito por su ID
+  openModal('Editar Hito', formHito(h), () => guardarHito(id)); // Abre el modal con los datos del hito y el ID para actualización
+}
+
  
   function renderRecursos() {
     const tbody = document.getElementById('tbody-recursos');
