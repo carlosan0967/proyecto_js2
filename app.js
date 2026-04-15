@@ -255,83 +255,88 @@ function renderDashboard() { // Función que actualiza todos los elementos visua
 }
 
 
-  function renderProyectos() {
-    const tbody = document.getElementById('tbody-proyectos');
-    if (!DB.proyectos.length) {
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No hay proyectos. ¡Crea el primero!</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = DB.proyectos.map(p => {
-      const prog = proyectoProgress(p.id);
-      return `<tr>
-        <td><strong>${p.nombre}</strong></td>
-        <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.descripcion || '—'}</td>
-        <td>${p.fechaInicio || '—'}</td>
-        <td>${p.fechaFin || '—'}</td>
-        <td style="min-width:130px"><cb-progress value="${prog}"></cb-progress></td>
-        <td>
-          <div class="action-group">
-            <button class="btn-edit" onclick="editarProyecto('${p.id}')">Editar</button>
-            <button class="btn-danger" onclick="eliminarProyecto('${p.id}')">Eliminar</button>
-          </div>
-        </td>
-      </tr>`;
-    }).join('');
-  }
-  
-  document.getElementById('btnNuevoProyecto').addEventListener('click', () => {
-    openModal('Nuevo Proyecto', formProyecto(), () => guardarProyecto(null));
-  });
-  
-  function formProyecto(p = {}) {
-    return `
-      <div class="form-group"><label>Nombre *</label>
-        <input id="f-nombre" value="${p.nombre || ''}" placeholder="Nombre del proyecto"/></div>
-      <div class="form-group"><label>Descripción</label>
-        <textarea id="f-desc">${p.descripcion || ''}</textarea></div>
-      <div class="form-row">
-        <div class="form-group"><label>Fecha Inicio *</label>
-          <input id="f-inicio" type="date" value="${p.fechaInicio || ''}"/></div>
-        <div class="form-group"><label>Fecha Fin *</label>
-          <input id="f-fin" type="date" value="${p.fechaFin || ''}"/></div>
-      </div>`;
-  }
-  
-  function guardarProyecto(id) {
-    const nombre = document.getElementById('f-nombre').value.trim();
-    const desc   = document.getElementById('f-desc').value.trim();
-    const inicio = document.getElementById('f-inicio').value;
-    const fin    = document.getElementById('f-fin').value;
-    if (!nombre || !inicio || !fin) { toast('Completa los campos obligatorios', 'error'); return; }
-    if (id) {
-      const p = DB.proyectos.find(x => x.id === id);
-      Object.assign(p, { nombre, descripcion: desc, fechaInicio: inicio, fechaFin: fin });
-      toast('Proyecto actualizado');
-    } else {
-      DB.proyectos.push({ id: uid(), nombre, descripcion: desc, fechaInicio: inicio, fechaFin: fin });
-      toast('Proyecto creado');
-    }
-    persist();
-    closeModal();
-    renderProyectos();
-    actualizarFiltros();
-  }
-  
-  function editarProyecto(id) {
-    const p = DB.proyectos.find(x => x.id === id);
-    openModal('Editar Proyecto', formProyecto(p), () => guardarProyecto(id));
-  }
+// ─────────────────────────────────────────────────────────────
+// VISTA: PROYECTOS
+// CRUD completo para gestionar proyectos
+// ─────────────────────────────────────────────────────────────
 
-  function eliminarProyecto(id) {
-    if (!confirm('¿Eliminar este proyecto? También se eliminarán sus actividades e hitos asociados.')) return;
-    DB.actividades = DB.actividades.filter(a => a.proyectoId !== id);
-    DB.hitos = DB.hitos.filter(h => h.proyectoId !== id);
-    DB.proyectos = DB.proyectos.filter(x => x.id !== id);
-    persist();
-    renderProyectos();
-    actualizarFiltros();
-    toast('Proyecto eliminado', 'error');
+function renderProyectos() { // Función que renderiza la tabla de proyectos
+  const tbody = document.getElementById('tbody-proyectos'); // Obtiene el cuerpo de la tabla de proyectos
+  if (!DB.proyectos.length) { // Si no hay proyectos en la base de datos
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No hay proyectos. ¡Crea el primero!</td></tr>`;
+    return; // Sale de la función sin continuar
   }
+  tbody.innerHTML = DB.proyectos.map(p => { // Genera una fila HTML por cada proyecto
+    const prog = proyectoProgress(p.id); // Calcula el porcentaje de progreso del proyecto
+    return `<tr>
+      <td><strong>${p.nombre}</strong></td>
+      <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.descripcion || '—'}</td>
+      <td>${p.fechaInicio || '—'}</td>
+      <td>${p.fechaFin || '—'}</td>
+      <td style="min-width:130px"><cb-progress value="${prog}"></cb-progress></td>
+      <td>
+        <div class="action-group">
+          <button class="btn-edit" onclick="editarProyecto('${p.id}')">Editar</button>
+          <button class="btn-danger" onclick="eliminarProyecto('${p.id}')">Eliminar</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join(''); // Une todas las filas en una cadena HTML y la inserta en el tbody
+}
+
+document.getElementById('btnNuevoProyecto').addEventListener('click', () => { // Agrega listener al botón "Nuevo Proyecto"
+  openModal('Nuevo Proyecto', formProyecto(), () => guardarProyecto(null)); // Abre el modal con el formulario vacío y pasa la función de guardado (null = nuevo)
+});
+
+function formProyecto(p = {}) { // Función que genera el HTML del formulario de proyecto; recibe un objeto con datos para edición
+  return `
+    <div class="form-group"><label>Nombre *</label>
+      <input id="f-nombre" value="${p.nombre || ''}" placeholder="Nombre del proyecto"/></div>
+    <div class="form-group"><label>Descripción</label>
+      <textarea id="f-desc">${p.descripcion || ''}</textarea></div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha Inicio *</label>
+        <input id="f-inicio" type="date" value="${p.fechaInicio || ''}"/></div>
+      <div class="form-group"><label>Fecha Fin *</label>
+        <input id="f-fin" type="date" value="${p.fechaFin || ''}"/></div>
+    </div>`;
+}
+
+function guardarProyecto(id) { // Función que guarda un proyecto nuevo o actualiza uno existente según si se pasa un ID
+  const nombre = document.getElementById('f-nombre').value.trim(); // Lee y limpia el valor del campo nombre
+  const desc   = document.getElementById('f-desc').value.trim(); // Lee y limpia el valor del campo descripción
+  const inicio = document.getElementById('f-inicio').value; // Lee el valor de la fecha de inicio
+  const fin    = document.getElementById('f-fin').value; // Lee el valor de la fecha de fin
+  if (!nombre || !inicio || !fin) { toast('Completa los campos obligatorios', 'error'); return; } // Valida que los campos obligatorios no estén vacíos; si lo están muestra error
+  if (id) { // Si se pasó un ID, se trata de una edición
+    const p = DB.proyectos.find(x => x.id === id); // Busca el proyecto existente en la base de datos
+    Object.assign(p, { nombre, descripcion: desc, fechaInicio: inicio, fechaFin: fin }); // Actualiza las propiedades del proyecto con los nuevos valores
+    toast('Proyecto actualizado'); // Muestra notificación de éxito
+  } else { // Si no se pasó ID, es un proyecto nuevo
+    DB.proyectos.push({ id: uid(), nombre, descripcion: desc, fechaInicio: inicio, fechaFin: fin }); // Crea un nuevo objeto proyecto con ID único y lo agrega al arreglo
+    toast('Proyecto creado'); // Muestra notificación de éxito
+  }
+  persist(); // Guarda los cambios en localStorage
+  closeModal(); // Cierra el modal
+  renderProyectos(); // Vuelve a renderizar la tabla de proyectos con los datos actualizados
+  actualizarFiltros(); // Actualiza los selectores de filtro que usan la lista de proyectos
+}
+
+function editarProyecto(id) { // Función que abre el modal de edición para un proyecto existente
+  const p = DB.proyectos.find(x => x.id === id); // Busca el proyecto por ID para precargar sus datos en el formulario
+  openModal('Editar Proyecto', formProyecto(p), () => guardarProyecto(id)); // Abre el modal con los datos del proyecto y pasa el ID para la actualización
+}
+
+function eliminarProyecto(id) { // Función que elimina un proyecto y todos sus datos relacionados
+  if (!confirm('¿Eliminar este proyecto? También se eliminarán sus actividades e hitos asociados.')) return; // Pide confirmación al usuario antes de eliminar
+  DB.actividades = DB.actividades.filter(a => a.proyectoId !== id); // Elimina todas las actividades que pertenecen a este proyecto
+  DB.hitos = DB.hitos.filter(h => h.proyectoId !== id); // Elimina todos los hitos que pertenecen a este proyecto
+  DB.proyectos = DB.proyectos.filter(x => x.id !== id); // Elimina el proyecto del arreglo de proyectos
+  persist(); // Guarda los cambios en localStorage
+  renderProyectos(); // Vuelve a renderizar la tabla de proyectos
+  actualizarFiltros(); // Actualiza los selectores de filtro
+  toast('Proyecto eliminado', 'error'); // Muestra notificación de eliminación en rojo
+}
   
   function renderActividades(filtroId = document.getElementById('filtro-proyecto-act').value) {
     const tbody = document.getElementById('tbody-actividades');
