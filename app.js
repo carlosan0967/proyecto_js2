@@ -645,50 +645,54 @@ function eliminarRecurso(id) { // Función que elimina un recurso humano de la b
   toast('Recurso eliminado', 'error'); // Muestra notificación de eliminación
 }
  
-  let calYear  = new Date().getFullYear();
-let calMonth = new Date().getMonth();
+// ─────────────────────────────────────────────────────────────
+// VISTA: CALENDARIO
+// Muestra un calendario mensual con las actividades
+// ─────────────────────────────────────────────────────────────
 
-function renderCalendario() {
-  const filtroId = document.getElementById('filtro-proyecto-cal').value;
-  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+let calYear  = new Date().getFullYear(); // Inicializa el año del calendario con el año actual
+let calMonth = new Date().getMonth(); // Inicializa el mes del calendario con el mes actual (0 = enero)
+
+function renderCalendario() { // Función que renderiza el calendario mensual completo
+  const filtroId = document.getElementById('filtro-proyecto-cal').value; // Lee el filtro de proyecto seleccionado para el calendario
+  const meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio', // Arreglo con los nombres de los meses en español
                  'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
   document.getElementById('calMonthLabel').textContent = `${meses[calMonth]} ${calYear}`;
 
-  const firstDay = new Date(calYear, calMonth, 1).getDay(); // 0=Dom
-  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
-  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1).getDay(); // Obtiene el día de la semana del primer día del mes (0=Domingo)
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate(); // Calcula la cantidad total de días en el mes actual
+  const today = new Date(); // Obtiene la fecha actual para marcar el día de hoy en el calendario
 
-  let acts = DB.actividades.filter(a => a.fechaInicio);
-  if (filtroId) acts = acts.filter(a => a.proyectoId === filtroId);
+  let acts = DB.actividades.filter(a => a.fechaInicio); // Filtra las actividades que tienen fecha de inicio definida
+  if (filtroId) acts = acts.filter(a => a.proyectoId === filtroId); // Si hay filtro de proyecto, muestra solo las actividades de ese proyecto
 
-  // Build calendar grid
   let html = `<div class="cal-header">
     <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span>
     <span>Jue</span><span>Vie</span><span>Sáb</span>
   </div><div class="cal-grid">`;
 
-  // Prev month days
-  const prevDays = new Date(calYear, calMonth, 0).getDate();
-  for (let i = firstDay - 1; i >= 0; i--) {
+  const prevDays = new Date(calYear, calMonth, 0).getDate(); // Obtiene la cantidad de días del mes anterior para rellenar el inicio de la cuadrícula
+  for (let i = firstDay - 1; i >= 0; i--) { // Itera para rellenar los días del mes anterior en la cuadrícula (antes del día 1)
     html += `<div class="cal-day other-month"><div class="cal-day-num">${prevDays - i}</div></div>`;
   }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+  for (let d = 1; d <= daysInMonth; d++) { // Itera sobre cada día del mes actual
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d; // Verifica si este día es el día actual
     const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
-    const dayActs = acts.filter(a => {
-      if (!a.fechaInicio) return false;
-      const start = new Date(a.fechaInicio);
-      const end   = a.duracion ? new Date(start.getTime() + a.duracion * 86400000) : start;
-      const cur   = new Date(dateStr);
-      return cur >= start && cur <= end;
+    const dayActs = acts.filter(a => { // Filtra las actividades que están activas en este día del calendario
+      if (!a.fechaInicio) return false; // Si la actividad no tiene fecha de inicio, la omite
+      const start = new Date(a.fechaInicio); // Convierte la fecha de inicio de la actividad a objeto Date
+      const end   = a.duracion ? new Date(start.getTime() + a.duracion * 86400000) : start; // Calcula la fecha de fin sumando la duración en milisegundos; si no hay duración, fin = inicio
+      const cur   = new Date(dateStr); // Convierte la fecha del día actual a objeto Date
+      return cur >= start && cur <= end; // Retorna true si el día actual está dentro del rango de la actividad
     });
 
-    const eventsHtml = dayActs.slice(0, 3).map(a => {
-      const cls = a.estado === 'Terminada' ? 'terminada' : a.estado === 'En Proceso' ? 'en-proceso' : 'pendiente';
+    const eventsHtml = dayActs.slice(0, 3).map(a => { // Toma máximo 3 actividades por día para mostrar en la celda
+      const cls = a.estado === 'Terminada' ? 'terminada' : a.estado === 'En Proceso' ? 'en-proceso' : 'pendiente'; // Asigna clase CSS según el estado de la actividad
       return `<div class="cal-event ${cls}" title="${a.nombre}">${a.nombre}</div>`;
-    }).join('');
+    }).join(''); // Une todos los eventos en una cadena HTML
+
     const more = dayActs.length > 3 ? `<div style="font-size:.68rem;color:var(--text2)">+${dayActs.length-3} más</div>` : '';
 
     html += `<div class="cal-day${isToday?' today':''}">
@@ -697,27 +701,29 @@ function renderCalendario() {
     </div>`;
   }
 
-  // Fill remaining
-  const total = firstDay + daysInMonth;
-  const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
-  for (let i = 1; i <= rem; i++) {
+  const total = firstDay + daysInMonth; // Calcula el total de celdas usadas (días previos + días del mes)
+  const rem = total % 7 === 0 ? 0 : 7 - (total % 7); // Calcula cuántas celdas de relleno se necesitan al final para completar la última fila
+  for (let i = 1; i <= rem; i++) { // Itera para agregar los días del mes siguiente que completan la cuadrícula
     html += `<div class="cal-day other-month"><div class="cal-day-num">${i}</div></div>`;
   }
-  html += '</div>';
-  document.getElementById('calendario-grid').innerHTML = html;
+  html += '</div>'; // Cierra el div de la cuadrícula del calendario
+  document.getElementById('calendario-grid').innerHTML = html; // Inserta todo el HTML generado en el contenedor del calendario
 }
 
-document.getElementById('calPrev').addEventListener('click', () => {
-  calMonth--;
-  if (calMonth < 0) { calMonth = 11; calYear--; }
-  renderCalendario();
+document.getElementById('calPrev').addEventListener('click', () => { // Listener para el botón de mes anterior en el calendario
+  calMonth--; // Decrementa el mes en 1
+  if (calMonth < 0) { calMonth = 11; calYear--; } // Si el mes cae por debajo de 0 (enero), retrocede al mes 11 (diciembre) del año anterior
+  renderCalendario(); // Vuelve a renderizar el calendario con el mes actualizado
 });
-document.getElementById('calNext').addEventListener('click', () => {
-  calMonth++;
-  if (calMonth > 11) { calMonth = 0; calYear++; }
-  renderCalendario();
+
+document.getElementById('calNext').addEventListener('click', () => { // Listener para el botón de mes siguiente en el calendario
+  calMonth++; // Incrementa el mes en 1
+  if (calMonth > 11) { calMonth = 0; calYear++; } // Si el mes supera el 11 (diciembre), avanza al mes 0 (enero) del año siguiente
+  renderCalendario(); // Vuelve a renderizar el calendario con el mes actualizado
 });
-document.getElementById('filtro-proyecto-cal').addEventListener('change', renderCalendario);
+
+document.getElementById('filtro-proyecto-cal').addEventListener('change', renderCalendario); // Al cambiar el filtro de proyecto del calendario, lo vuelve a renderizar
+
 
 function actualizarFiltros() {
     ['filtro-proyecto-act', 'filtro-proyecto-cal'].forEach(id => {
