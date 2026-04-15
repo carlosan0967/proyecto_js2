@@ -739,15 +739,20 @@ function actualizarFiltros() { // Función que actualiza las opciones de los sel
 }
 
   
-  /* ─── EXPOSE GLOBALS FOR INLINE HANDLERS ─────────────────── */
-  window.editarProyecto   = editarProyecto;
-  window.eliminarProyecto = eliminarProyecto;
-  window.editarActividad  = editarActividad;
-  window.eliminarActividad= eliminarActividad;
-  window.editarHito       = editarHito;
-  window.editarRecurso    = editarRecurso;
-  window.eliminarRecurso  = eliminarRecurso;
-  
+ // ─────────────────────────────────────────────────────────────
+// EXPOSICIÓN DE FUNCIONES GLOBALES
+// Necesario para que los onclick del HTML puedan acceder a estas funciones
+// ─────────────────────────────────────────────────────────────
+
+window.editarProyecto    = editarProyecto;   // Expone editarProyecto al ámbito global para usarla desde atributos onclick en el HTML
+window.eliminarProyecto  = eliminarProyecto; // Expone eliminarProyecto al ámbito global
+window.editarActividad   = editarActividad;  // Expone editarActividad al ámbito global
+window.eliminarActividad = eliminarActividad;// Expone eliminarActividad al ámbito global
+window.editarHito        = editarHito;       // Expone editarHito al ámbito global
+window.editarRecurso     = editarRecurso;    // Expone editarRecurso al ámbito global
+window.eliminarRecurso   = eliminarRecurso;  // Expone eliminarRecurso al ámbito global
+
+
   /* ─── INIT ────────────────────────────────────────────────── */
   actualizarFiltros();
   actualizarHitosEstado();
