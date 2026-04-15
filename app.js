@@ -535,110 +535,115 @@ function editarHito(id) { // Función que abre el modal de edición para un hito
 }
 
  
-  function renderRecursos() {
-    const tbody = document.getElementById('tbody-recursos');
-    if (!DB.recursos.length) {
-      tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No hay recursos registrados.</td></tr>`;
-      return;
-    }
-    tbody.innerHTML = DB.recursos.map(r => `<tr>
-      <td>${r.identificacion}</td>
-      <td><strong>${r.nombre}</strong></td>
-      <td>${r.rol || '—'}</td>
-      <td>${r.arl || '—'}</td>
-      <td>${r.salario ? '$' + Number(r.salario).toLocaleString('es-CO') : '—'}</td>
-      <td>${r.tipoSangre || '—'}</td>
-      <td>
-        <div class="action-group">
-          <button class="btn-edit" onclick="editarRecurso('${r.id}')">Editar</button>
-          <button class="btn-danger" onclick="eliminarRecurso('${r.id}')">Eliminar</button>
-        </div>
-      </td>
-    </tr>`).join('');
+// ─────────────────────────────────────────────────────────────
+// VISTA: RECURSOS HUMANOS
+// CRUD completo para gestionar el personal del proyecto
+// ─────────────────────────────────────────────────────────────
+
+function renderRecursos() { // Función que renderiza la tabla de recursos humanos
+  const tbody = document.getElementById('tbody-recursos'); // Obtiene el cuerpo de la tabla de recursos
+  if (!DB.recursos.length) { // Si no hay recursos registrados
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">No hay recursos registrados.</td></tr>`;
+    return; // Sale de la función
   }
-  
-  document.getElementById('btnNuevoRecurso').addEventListener('click', () => {
-    openModal('Nuevo Recurso Humano', formRecurso(), () => guardarRecurso(null));
-  });
-  
-  function formRecurso(r = {}) {
-    const sangres = ['A+','A-','B+','B-','AB+','AB-','O+','O-'];
-    const roles   = ['Ingeniero','Supervisor','Arquitecto','Técnico','Obrero','Administrador','Otro'];
-    const generos = ['Masculino','Femenino','No binario','Prefiero no decir'];
-    return `
-      <div class="form-row">
-        <div class="form-group"><label>Identificación *</label>
-          <input id="f-id" value="${r.identificacion || ''}" placeholder="CC / NIT"/></div>
-        <div class="form-group"><label>Nombre completo *</label>
-          <input id="f-nombre" value="${r.nombre || ''}" placeholder="Nombre"/></div>
+  tbody.innerHTML = DB.recursos.map(r => `<tr>
+    <td>${r.identificacion}</td>
+    <td><strong>${r.nombre}</strong></td>
+    <td>${r.rol || '—'}</td>
+    <td>${r.arl || '—'}</td>
+    <td>${r.salario ? '$' + Number(r.salario).toLocaleString('es-CO') : '—'}</td>
+    <td>${r.tipoSangre || '—'}</td>
+    <td>
+      <div class="action-group">
+        <button class="btn-edit" onclick="editarRecurso('${r.id}')">Editar</button>
+        <button class="btn-danger" onclick="eliminarRecurso('${r.id}')">Eliminar</button>
       </div>
-      <div class="form-row">
-        <div class="form-group"><label>Fecha de Nacimiento</label>
-          <input id="f-fnac" type="date" value="${r.fechaNacimiento || ''}"/></div>
-        <div class="form-group"><label>Tipo de Sangre</label>
-          <select id="f-sangre">
-            <option value="">—</option>
-            ${sangres.map(s=>`<option value="${s}" ${r.tipoSangre===s?'selected':''}>${s}</option>`).join('')}
-          </select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>ARL</label>
-          <input id="f-arl" value="${r.arl || ''}" placeholder="Nombre ARL"/></div>
-        <div class="form-group"><label>Rol *</label>
-          <select id="f-rol">
-            <option value="">Seleccionar...</option>
-            ${roles.map(ro=>`<option value="${ro}" ${r.rol===ro?'selected':''}>${ro}</option>`).join('')}
-          </select></div>
-      </div>
-      <div class="form-row">
-        <div class="form-group"><label>Salario (COP) *</label>
-          <input id="f-salario" type="number" min="0" value="${r.salario || ''}" placeholder="1300000"/></div>
-        <div class="form-group"><label>Género (opcional)</label>
-          <select id="f-genero">
-            <option value="">—</option>
-            ${generos.map(g=>`<option value="${g}" ${r.genero===g?'selected':''}>${g}</option>`).join('')}
-          </select></div>
-      </div>`;
+    </td>
+  </tr>`).join('');
+}
+
+document.getElementById('btnNuevoRecurso').addEventListener('click', () => { // Listener para el botón "Nuevo Recurso Humano"
+  openModal('Nuevo Recurso Humano', formRecurso(), () => guardarRecurso(null)); // Abre el modal con el formulario vacío para crear un nuevo recurso
+});
+
+function formRecurso(r = {}) { // Función que genera el HTML del formulario de recurso humano
+  const sangres = ['A+','A-','B+','B-','AB+','AB-','O+','O-']; // Arreglo con los tipos de sangre disponibles
+  const roles   = ['Ingeniero','Supervisor','Arquitecto','Técnico','Obrero','Administrador','Otro']; // Arreglo con los roles disponibles
+  const generos = ['Masculino','Femenino','No binario','Prefiero no decir']; // Arreglo con las opciones de género
+  return `
+    <div class="form-row">
+      <div class="form-group"><label>Identificación *</label>
+        <input id="f-id" value="${r.identificacion || ''}" placeholder="CC / NIT"/></div>
+      <div class="form-group"><label>Nombre completo *</label>
+        <input id="f-nombre" value="${r.nombre || ''}" placeholder="Nombre"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Fecha de Nacimiento</label>
+        <input id="f-fnac" type="date" value="${r.fechaNacimiento || ''}"/></div>
+      <div class="form-group"><label>Tipo de Sangre</label>
+        <select id="f-sangre">
+          <option value="">—</option>
+          ${sangres.map(s=>`<option value="${s}" ${r.tipoSangre===s?'selected':''}>${s}</option>`).join('')}
+        </select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>ARL</label>
+        <input id="f-arl" value="${r.arl || ''}" placeholder="Nombre ARL"/></div>
+      <div class="form-group"><label>Rol *</label>
+        <select id="f-rol">
+          <option value="">Seleccionar...</option>
+          ${roles.map(ro=>`<option value="${ro}" ${r.rol===ro?'selected':''}>${ro}</option>`).join('')}
+        </select></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Salario (COP) *</label>
+        <input id="f-salario" type="number" min="0" value="${r.salario || ''}" placeholder="1300000"/></div>
+      <div class="form-group"><label>Género (opcional)</label>
+        <select id="f-genero">
+          <option value="">—</option>
+          ${generos.map(g=>`<option value="${g}" ${r.genero===g?'selected':''}>${g}</option>`).join('')}
+        </select></div>
+    </div>`;
+}
+
+function guardarRecurso(id) { // Función que guarda un recurso nuevo o actualiza uno existente
+  const identificacion  = document.getElementById('f-id').value.trim(); // Lee el número de identificación
+  const nombre          = document.getElementById('f-nombre').value.trim(); // Lee el nombre completo
+  const fechaNacimiento = document.getElementById('f-fnac').value; // Lee la fecha de nacimiento
+  const tipoSangre      = document.getElementById('f-sangre').value; // Lee el tipo de sangre seleccionado
+  const arl             = document.getElementById('f-arl').value.trim(); // Lee el nombre de la ARL
+  const rol             = document.getElementById('f-rol').value; // Lee el rol seleccionado
+  const salario         = document.getElementById('f-salario').value; // Lee el salario ingresado
+  const genero          = document.getElementById('f-genero').value; // Lee el género seleccionado
+  if (!identificacion || !nombre || !rol || !salario) { // Valida que los campos obligatorios no estén vacíos
+    toast('Completa los campos obligatorios', 'error'); return; // Muestra error y sale si falta algún campo obligatorio
   }
-  
-  function guardarRecurso(id) {
-    const identificacion  = document.getElementById('f-id').value.trim();
-    const nombre          = document.getElementById('f-nombre').value.trim();
-    const fechaNacimiento = document.getElementById('f-fnac').value;
-    const tipoSangre      = document.getElementById('f-sangre').value;
-    const arl             = document.getElementById('f-arl').value.trim();
-    const rol             = document.getElementById('f-rol').value;
-    const salario         = document.getElementById('f-salario').value;
-    const genero          = document.getElementById('f-genero').value;
-    if (!identificacion || !nombre || !rol || !salario) {
-      toast('Completa los campos obligatorios', 'error'); return;
-    }
-    if (id) {
-      const r = DB.recursos.find(x => x.id === id);
-      Object.assign(r, { identificacion, nombre, fechaNacimiento, tipoSangre, arl, rol, salario, genero });
-      toast('Recurso actualizado');
-    } else {
-      DB.recursos.push({ id: uid(), identificacion, nombre, fechaNacimiento, tipoSangre, arl, rol, salario, genero });
-      toast('Recurso creado');
-    }
-    persist();
-    closeModal();
-    renderRecursos();
-    actualizarFiltros();
+  if (id) { // Si hay ID, es una edición
+    const r = DB.recursos.find(x => x.id === id); // Busca el recurso existente por ID
+    Object.assign(r, { identificacion, nombre, fechaNacimiento, tipoSangre, arl, rol, salario, genero }); // Actualiza todas las propiedades del recurso
+    toast('Recurso actualizado'); // Muestra notificación de éxito
+  } else { // Si no hay ID, es un recurso nuevo
+    DB.recursos.push({ id: uid(), identificacion, nombre, fechaNacimiento, tipoSangre, arl, rol, salario, genero }); // Crea y agrega el nuevo recurso al arreglo
+    toast('Recurso creado'); // Muestra notificación de éxito
   }
-  
-  function editarRecurso(id) {
-    const r = DB.recursos.find(x => x.id === id);
-    openModal('Editar Recurso', formRecurso(r), () => guardarRecurso(id));
-  }
-  
-  function eliminarRecurso(id) {
-    if (!confirm('¿Eliminar este recurso?')) return;
-    DB.recursos = DB.recursos.filter(x => x.id !== id);
-    persist();
-    renderRecursos();
-    toast('Recurso eliminado', 'error');
-  }
+  persist(); // Guarda los cambios en localStorage
+  closeModal(); // Cierra el modal
+  renderRecursos(); // Vuelve a renderizar la tabla de recursos
+  actualizarFiltros(); // Actualiza los selectores de filtro
+}
+
+function editarRecurso(id) { // Función que abre el modal de edición para un recurso existente
+  const r = DB.recursos.find(x => x.id === id); // Busca el recurso por su ID
+  openModal('Editar Recurso', formRecurso(r), () => guardarRecurso(id)); // Abre el modal con los datos del recurso y el ID para actualización
+}
+
+function eliminarRecurso(id) { // Función que elimina un recurso humano de la base de datos
+  if (!confirm('¿Eliminar este recurso?')) return; // Pide confirmación al usuario antes de eliminar
+  DB.recursos = DB.recursos.filter(x => x.id !== id); // Elimina el recurso del arreglo filtrando los que no tienen ese ID
+  persist(); // Guarda los cambios en localStorage
+  renderRecursos(); // Vuelve a renderizar la tabla de recursos
+  toast('Recurso eliminado', 'error'); // Muestra notificación de eliminación
+}
  
   let calYear  = new Date().getFullYear();
 let calMonth = new Date().getMonth();
