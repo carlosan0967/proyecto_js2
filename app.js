@@ -218,36 +218,42 @@ function actualizarHitosEstado() { // Función que recalcula automáticamente el
 }
 
   
-  function renderDashboard() {
-    document.getElementById('cnt-proyectos').textContent = DB.proyectos.length;
-    document.getElementById('cnt-actividades').textContent = DB.actividades.length;
-    document.getElementById('cnt-hitos').textContent = DB.hitos.length;
-    document.getElementById('cnt-recursos').textContent = DB.recursos.length;
-  
-    const raEl = document.getElementById('recent-actividades');
-    const recent = [...DB.actividades].slice(-5).reverse();
-    if (recent.length) {
-      raEl.innerHTML = recent.map(a => `
-        <div class="recent-item">
-          <span>${a.nombre}</span>
-          <cb-badge estado="${a.estado}"></cb-badge>
-        </div>`).join('');
-    } else {
-      raEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">Sin actividades registradas.</p>`;
-    }
-  
-    const rhEl = document.getElementById('recent-hitos');
-    const hpend = DB.hitos.filter(h => h.estado !== 'Cumplido').slice(0, 5);
-    if (hpend.length) {
-      rhEl.innerHTML = hpend.map(h => `
-        <div class="recent-item">
-          <span>${h.nombre}</span>
-          <cb-badge estado="${h.estado}"></cb-badge>
-        </div>`).join('');
-    } else {
-      rhEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">No hay hitos pendientes.</p>`;
-    }
+// ─────────────────────────────────────────────────────────────
+// VISTA: DASHBOARD
+// Muestra resumen de conteos y elementos recientes
+// ─────────────────────────────────────────────────────────────
+
+function renderDashboard() { // Función que actualiza todos los elementos visuales del dashboard
+  document.getElementById('cnt-proyectos').textContent = DB.proyectos.length;     // Muestra el total de proyectos en el contador del dashboard
+  document.getElementById('cnt-actividades').textContent = DB.actividades.length; // Muestra el total de actividades en el contador del dashboard
+  document.getElementById('cnt-hitos').textContent = DB.hitos.length;             // Muestra el total de hitos en el contador del dashboard
+  document.getElementById('cnt-recursos').textContent = DB.recursos.length;       // Muestra el total de recursos humanos en el contador del dashboard
+
+  const raEl = document.getElementById('recent-actividades'); // Obtiene el contenedor HTML de las actividades recientes
+  const recent = [...DB.actividades].slice(-5).reverse(); // Copia el arreglo de actividades, toma las últimas 5 y las invierte para mostrar las más recientes primero
+  if (recent.length) { // Si hay actividades recientes para mostrar
+    raEl.innerHTML = recent.map(a => `
+      <div class="recent-item">
+        <span>${a.nombre}</span>
+        <cb-badge estado="${a.estado}"></cb-badge>
+      </div>`).join('');
+  } else { // Si no hay actividades registradas
+    raEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">Sin actividades registradas.</p>`;
   }
+
+  const rhEl = document.getElementById('recent-hitos'); // Obtiene el contenedor HTML de los hitos pendientes
+  const hpend = DB.hitos.filter(h => h.estado !== 'Cumplido').slice(0, 5); // Filtra los hitos que no están cumplidos y toma máximo 5
+  if (hpend.length) { // Si hay hitos pendientes para mostrar
+    rhEl.innerHTML = hpend.map(h => `
+      <div class="recent-item">
+        <span>${h.nombre}</span>
+        <cb-badge estado="${h.estado}"></cb-badge>
+      </div>`).join('');
+  } else { // Si no hay hitos pendientes
+    rhEl.innerHTML = `<p style="color:var(--text2);font-size:.85rem">No hay hitos pendientes.</p>`;
+  }
+}
+
 
   function renderProyectos() {
     const tbody = document.getElementById('tbody-proyectos');
